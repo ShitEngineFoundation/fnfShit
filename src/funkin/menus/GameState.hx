@@ -1,4 +1,4 @@
-package;
+package funkin.menus;
 
 class GameState extends flixel.FlxState {
 	override public function create() { 

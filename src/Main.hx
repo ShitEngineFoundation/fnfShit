@@ -19,7 +19,7 @@ class Main extends Sprite {
 	public function new() {
 		super();
 
-		addChild(new FlxGame(1280, 720, GameState, 120, true));
+		addChild(new FlxGame(1280, 720, funkin.menus.GameState, 120, true));
 		Lib.current.stage.scaleMode = StageScaleMode.NO_SCALE;
 		registerAsDPICompatible();
 		setFlxDefines(); 
@@ -33,9 +33,11 @@ class Main extends Sprite {
 		FlxG.mouse.useSystemCursor = true;
 	}
 
+	#if windows
 	@:functionCode('
         SetProcessDPIAware();
     ')
+	#end
     public static function registerAsDPICompatible() {}
 
 	// Get rid of hit test function because mouse memory ramp up during first move (-Bolo)
