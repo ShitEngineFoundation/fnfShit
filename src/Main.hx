@@ -1,5 +1,6 @@
 package;
 
+
 import flixel.FlxG;
 import flixel.FlxGame;
 import openfl.Lib;
@@ -14,18 +15,21 @@ import flixel.graphics.FlxGraphic;
 	#include <winuser.h>
 ")
 #end
-
-class Main extends Sprite {
-	public function new() {
+class Main extends Sprite
+{
+	
+	public function new()
+	{
 		super();
-
-		addChild(new FlxGame(1280, 720, funkin.menus.GameState, 120, true));
+		FlxG.signals.preStateSwitch.add(Conductor.clear);
+		addChild(new FlxGame(1280, 720, funkin.menus.TitleState, 120, true));
 		Lib.current.stage.scaleMode = StageScaleMode.NO_SCALE;
 		registerAsDPICompatible();
-		setFlxDefines(); 
+		setFlxDefines();
 	}
 
-	function setFlxDefines() {
+	function setFlxDefines()
+	{
 		FlxG.mouse.visible = false;
 		FlxG.cameras.useBufferLocking = true;
 		FlxG.autoPause = false;
@@ -38,10 +42,16 @@ class Main extends Sprite {
         SetProcessDPIAware();
     ')
 	#end
-    public static function registerAsDPICompatible() {}
+	public static function registerAsDPICompatible() {}
 
 	// Get rid of hit test function because mouse memory ramp up during first move (-Bolo)
-    @:noCompletion override function __hitTest(x:Float, y:Float, shapeFlag:Bool, stack:Array<DisplayObject>, interactiveOnly:Bool, hitObject:DisplayObject):Bool return false;
-    @:noCompletion override function __hitTestHitArea(x:Float, y:Float, shapeFlag:Bool, stack:Array<DisplayObject>, interactiveOnly:Bool, hitObject:DisplayObject):Bool return false;
-    @:noCompletion override function __hitTestMask(x:Float, y:Float):Bool return false;
+	@:noCompletion override function __hitTest(x:Float, y:Float, shapeFlag:Bool, stack:Array<DisplayObject>, interactiveOnly:Bool, hitObject:DisplayObject):Bool
+		return false;
+
+	@:noCompletion override function __hitTestHitArea(x:Float, y:Float, shapeFlag:Bool, stack:Array<DisplayObject>, interactiveOnly:Bool,
+			hitObject:DisplayObject):Bool
+		return false;
+
+	@:noCompletion override function __hitTestMask(x:Float, y:Float):Bool
+		return false;
 }

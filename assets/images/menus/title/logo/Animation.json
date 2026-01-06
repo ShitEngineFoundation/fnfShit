@@ -1,0 +1,30 @@
+{
+"AN":{
+"N":"Start_Screen_Assets",
+"SN":"logo",
+"TL":{
+"L":[
+{
+"LN":"Layer 1",
+"FR":[
+{
+"I":0,
+"DU":1,
+"E":[
+{"SI":{
+"SN":"FNF logo dave edit.png",
+"ST":"MC",
+"TRP":{"x":452.1,"y":338.95},
+"MX":[0.406,0,0,0.406,0,0]
+}}]}
+]}
+]}},
+"MD":{
+"V":"BTA 1.2.0",
+"N":"Start_Screen_Assets",
+"BGC":"#999999",
+"W":1280,
+"H":720,
+"ASV":3,
+"FRT":24
+}}
