@@ -40,6 +40,8 @@ class Conductor
 		onStep.removeAll();
 		onBeat.removeAll();
 		onMeasure.removeAll();
+		BPM = 100;
+		songPosition = 0;
 	}
 
 	public static function isInRange(time:Float = 0, range:Float = 0)
