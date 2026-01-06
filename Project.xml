@@ -8,7 +8,7 @@
 	<!-- ____________________________ Window Settings ___________________________ -->
 
 	<!--These window settings apply to all targets-->
-	<window width="1280" height="720" fps="" background="#000000" hardware="true" vsync="false" />
+	<window width="1280" height="720" fps="60" background="#000000" hardware="true" vsync="false" />
 
 	<!--Desktop-specific-->
 	<window if="desktop" orientation="landscape" fullscreen="false" resizable="true"/>
@@ -25,6 +25,7 @@
 	<!-- _______________________________ Libraries ______________________________ -->
 
 	<haxelib name="flixel" />
+	<haxelib name="flixel-animate"/>
 
 	<!--Optimise inputs, be careful you will get null errors if you don't use conditionals in your game-->
 	<haxedef name="FLX_NO_MOUSE" if="mobile" />
@@ -37,6 +38,10 @@
 	<!-- _________________________________ Custom _______________________________ -->
 
 	<haxedef name="no-deprecation-warnings" />
+
+	<haxedef name="message.reporting" value="pretty" />
+	<haxedef name="FLX_NO_FOCUS_LOST_SCREEN" />
+
 	
 	<!--Allow working memory greater than 1 gig-->
 	<haxedef name="HXCPP_GC_BIG_BLOCKS" if="desktop"/>
@@ -44,6 +49,7 @@
 	<haxedef name="HXCPP_CHECK_POINTER" />
     <haxedef name="HXCPP_STACK_LINE" />
     <haxedef name="HXCPP_STACK_TRACE" />
+
 
 	<!--Place custom nodes like icons here (higher priority to override the HaxeFlixel icon)-->
 </project>
