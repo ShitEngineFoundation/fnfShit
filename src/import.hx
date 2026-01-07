@@ -5,6 +5,7 @@ import flixel.graphics.frames.FlxAtlasFrames;
 import flixel.group.FlxGroup;
 import flixel.math.FlxMath;
 import flixel.tweens.FlxTween;
+import funkin.backend.system.Controls.*;
 import flixel.util.FlxTimer;
 import flixel.group.FlxSpriteGroup;
 import flixel.sound.FlxSound;

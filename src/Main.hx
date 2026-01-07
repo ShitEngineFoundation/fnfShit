@@ -1,6 +1,7 @@
 package;
 
 
+import funkin.backend.system.InitState;
 import flixel.FlxG;
 import flixel.FlxGame;
 import openfl.Lib;
@@ -22,7 +23,8 @@ class Main extends Sprite
 	{
 		super();
 		FlxG.signals.preStateSwitch.add(Conductor.clear);
-		addChild(new FlxGame(1280, 720, funkin.menus.TitleState, 120, true));
+
+		addChild(new FlxGame(1280, 720, InitState, 120, true));
 		Lib.current.stage.scaleMode = StageScaleMode.NO_SCALE;
 		registerAsDPICompatible();
 		setFlxDefines();

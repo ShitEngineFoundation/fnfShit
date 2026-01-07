@@ -31,7 +31,7 @@ class TitleState extends FlxState
 		logo.antialiasing = false;
 
 		// Base scale
-		logo.scale.set(1,1);
+		logo.scale.set(1, 1);
 		logo.updateHitbox();
 
 		// Position ONCE
@@ -39,12 +39,12 @@ class TitleState extends FlxState
 		logo.antialiasing = true;
 		add(logo);
 
-		//Enter
-		enter = new FunkinSprite(100,576);
+		// Enter
+		enter = new FunkinSprite(100, 576);
 		enter.antialiasing = true;
-		enter.loadAtlas("menus/title/titleEnter",SPARROW);
-		enter.addAnimPrefix("idle","ENTER IDLE");
-		enter.addAnimPrefix("press","ENTER PRESSED");
+		enter.loadAtlas("menus/title/titleEnter", SPARROW);
+		enter.addAnimPrefix("idle", "ENTER IDLE");
+		enter.addAnimPrefix("press", "ENTER FREEZE");
 		enter.playAnim("idle");
 		add(enter);
 
@@ -63,11 +63,12 @@ class TitleState extends FlxState
 		new FlxTimer().start(0.01, startIntro);
 	}
 
+	var exiting = false;
+
 	function startIntro(?t)
 	{
 		FlxG.sound.playMusic(Paths.getSound("music/freakyMenu", true));
 		FlxG.camera.alpha = 1;
-		FlxG.camera.flash();
 	}
 
 	override function update(elapsed:Float)
@@ -80,5 +81,26 @@ class TitleState extends FlxState
 		// Smooth return to base scale
 		var m = FlxMath.lerp(1, logo.scale.x, elapsed * 9);
 		logo.scale.set(m, m);
+
+		if (controls.justPressed.UI_ACCEPT && !exiting)
+		{
+			exiting = true;
+			FlxG.camera.flash();
+			enter.playAnim("press");
+			FlxG.sound.play(Paths.getSound("sounds/confirmMenu"));
+
+			startTimer = new FlxTimer().start(1.5, (t) -> exit());
+		}
+		else if (exiting && controls.justPressed.UI_ACCEPT)
+			exit();
+	}
+	var startTimer:FlxTimer;
+
+	public function exit()
+	{
+		startTimer.cancel();
+		startTimer.destroy();
+		startTimer = null;
+		FlxG.switchState(new MainMenuState());
 	}
 }
