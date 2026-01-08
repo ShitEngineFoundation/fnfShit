@@ -5,7 +5,7 @@ import flixel.FlxState;
 import flixel.math.FlxMath;
 import flixel.util.FlxTimer;
 
-class TitleState extends FlxState
+class TitleState extends FlxTransitionableState
 {
 	var logo:FunkinSprite;
 	var girl:FunkinSprite;
@@ -13,6 +13,7 @@ class TitleState extends FlxState
 
 	override public function create()
 	{
+		persistentDraw = persistentUpdate = true;
 		super.create();
 
 		Paths.getAnimateAtlas("menus/title/gf_title");
@@ -94,6 +95,7 @@ class TitleState extends FlxState
 		else if (exiting && controls.justPressed.UI_ACCEPT)
 			exit();
 	}
+
 	var startTimer:FlxTimer;
 
 	public function exit()

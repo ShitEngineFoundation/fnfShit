@@ -3,7 +3,7 @@
 	xsi:schemaLocation="http://lime.software/project/1.0.2 http://lime.software/xsd/project-1.0.2.xsd">
 
 	<!-- _________________________ Application Settings _________________________ -->
-	<app title="Blank Flixel Project" file="Game" main="Main" version="1.0.0" company="com.company.game" />
+	<app title="ShitFNF" file="ShitFNF" main="Main" version="1.0.0" company="com.fnf.shit" />
 
 	<!-- ____________________________ Window Settings ___________________________ -->
 
@@ -26,6 +26,7 @@
 
 	<haxelib name="flixel" />
 	<haxelib name="flixel-controls" />
+	<haxelib name="flixel-addons" />
 	<haxelib name="flixel-animate"/>
 
 	<!--Optimise inputs, be careful you will get null errors if you don't use conditionals in your game-->
@@ -35,6 +36,8 @@
 
 	<!--Disable the Flixel core debugger. Automatically gets set whenever you compile in release mode!-->
 	<haxedef name="FLX_NO_DEBUG" unless="debug" />
+
+	<haxeflag name="--macro" value=" include('flixel.addons.display')"/>
 
 	<!-- _________________________________ Custom _______________________________ -->
 

@@ -1,6 +1,6 @@
 package funkin.menus;
 
-class MainMenuState extends FlxState
+class MainMenuState extends FlxTransitionableState
 {
 	public static var items:Array<String> = ["story_mode", "freeplay", "credits", "options"];
 
@@ -18,7 +18,7 @@ class MainMenuState extends FlxState
 		bg.scrollFactor.set(0, 0.2);
 		bg.updateHitbox();
 		bg.antialiasing = true;
-        bg.color = FlxColor.YELLOW;
+		bg.color = FlxColor.YELLOW;
 		add(bg);
 
 		itemGroup = new FlxTypedGroup<FunkinSprite>();
@@ -69,5 +69,36 @@ class MainMenuState extends FlxState
 			changeSelected(1);
 		else if (controls.justPressed.NOTE_UP)
 			changeSelected(-1);
+		if (controls.justPressed.UI_ACCEPT && !exiting)
+		{
+			var curSelected = itemGroup.members[itemIndex];
+			for (item in itemGroup)
+				if (item != curSelected)
+					FlxTween.tween(item, {alpha: 0}, 0.3);
+			FlxG.sound.play(Paths.getSound("sounds/confirmMenu"));
+			new FlxTimer().start(0.6, (?e) -> exit(items[itemIndex]));
+			exiting = true;
+		}
+	}
+
+	var exiting = false;
+
+	public function exit(itemSelected:String)
+	{
+		var curSelected = itemGroup.members[itemIndex];
+		switch (itemSelected)
+		{
+			default:
+				exiting = false;
+				for (item in itemGroup)
+					FlxTween.tween(item, {alpha: 1}, 0.3);
+				curSelected.color = FlxColor.RED;
+				FlxTween.color(curSelected, 0.3, curSelected.color, 0xFFFFFFFF);
+				FlxG.camera.shake(0.01, 0.3);
+				FlxG.sound.play(Paths.getSound("sounds/cancelMenu"));
+			case "options":
+				FlxG.camera.fade();
+				FlxG.switchState(new OptionsState());
+		}
 	}
 }
