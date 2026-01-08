@@ -1,5 +1,6 @@
 package funkin.menus.options;
 
+import funkin.menus.options.optionobjs.OptionCheckbox;
 import flixel.addons.display.FlxBackdrop;
 import flixel.addons.plugin.taskManager.FlxTask;
 import funkin.options.Option;
@@ -15,7 +16,7 @@ class BaseOptionCat extends FlxTransitionableState
 	public function new()
 	{
 		super();
-
+		persistentDraw = persistentUpdate = true;
 		var bg:FlxBackdrop = new FlxBackdrop(Paths.getGraphic("menus/menuDesat"), XY, 0, 0);
 		bg.velocity.set(-20, 0);
 		add(bg);
@@ -30,7 +31,7 @@ class BaseOptionCat extends FlxTransitionableState
 
 	override function create()
 	{
-        super.create();
+		super.create();
 		FlxG.camera.follow(camTarget, 0.06);
 	}
 
@@ -48,10 +49,19 @@ class BaseOptionCat extends FlxTransitionableState
 		optionName.size += 2;
 		optionName.borderStyle = OUTLINE;
 		optionsGroup.add(option);
-
+		option.displayText = optionName;
 		option.setPosition(0, 120 * optionsGroup.length);
 		option.screenCenter(X);
 		option.y += FlxG.height / 2;
+
+		switch (option.type)
+		{
+			case BOOL:
+				var checkbox:OptionCheckbox = new OptionCheckbox(option);
+				option.add(checkbox);
+			default:
+				trace("type " + option.type.getName() + " has no display thing yet");
+		}
 	}
 
 	var canMoveBack = true;
@@ -88,8 +98,9 @@ class BaseOptionCat extends FlxTransitionableState
 		optionsGroup.forEachAlive((o) ->
 		{
 			o.alpha = o == curSelected ? 1 : 0.5;
-			o.updateHitbox();
-			o.screenCenter(X);
+		
+	
+			o.selected = o == curSelected;
 		});
 	}
 
