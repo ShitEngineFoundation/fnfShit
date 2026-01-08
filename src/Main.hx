@@ -1,6 +1,5 @@
 package;
 
-
 import funkin.backend.system.InitState;
 import flixel.FlxG;
 import flixel.FlxGame;
@@ -18,7 +17,6 @@ import flixel.graphics.FlxGraphic;
 #end
 class Main extends Sprite
 {
-	
 	public function new()
 	{
 		super();
@@ -32,11 +30,11 @@ class Main extends Sprite
 
 	function setFlxDefines()
 	{
-		FlxG.mouse.visible = false;
+		#if FLX_MOUSE FlxG.mouse.visible = false; #end
 		FlxG.cameras.useBufferLocking = true;
 		FlxG.autoPause = false;
 		FlxG.fixedTimestep = false;
-		FlxG.mouse.useSystemCursor = true;
+		#if FLX_MOUSE FlxG.mouse.useSystemCursor = true; #end
 	}
 
 	#if windows

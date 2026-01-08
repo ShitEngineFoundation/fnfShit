@@ -21,6 +21,7 @@ class OptionCheckbox extends FunkinSprite
 		});
 		scale.set(0.5, 0.5);
 		updateHitbox();
+        antialiasing = true;
 	}
 
 	override function update(elapsed:Float)

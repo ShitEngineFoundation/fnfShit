@@ -2,7 +2,7 @@ package funkin.menus;
 
 class MainMenuState extends FlxTransitionableState
 {
-	public static var items:Array<String> = ["story_mode", "freeplay", "credits", "options"];
+	public static var items:Array<String> = ["playstate","story_mode", "freeplay", "credits", "options"];
 
 	public var itemGroup:FlxTypedGroup<FunkinSprite>;
 	public var itemIndex:Int = 0;

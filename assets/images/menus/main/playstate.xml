@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TextureAtlas imagePath="play.png">
+	<!-- Created with Adobe Animate version 21.0.9.42677 -->
+	<!-- http://www.adobe.com/products/animate.html -->
+	<SubTexture name="playstate idle0000" x="1" y="1" width="222" height="119"/>
+	<SubTexture name="playstate idle0001" x="1" y="1" width="222" height="119"/>
+	<SubTexture name="playstate idle0002" x="1" y="1" width="222" height="119"/>
+	<SubTexture name="playstate idle0003" x="224" y="1" width="222" height="119"/>
+	<SubTexture name="playstate idle0004" x="224" y="1" width="222" height="119"/>
+	<SubTexture name="playstate idle0005" x="224" y="1" width="222" height="119"/>
+	<SubTexture name="playstate idle0006" x="1" y="121" width="222" height="119"/>
+	<SubTexture name="playstate idle0007" x="1" y="121" width="222" height="119"/>
+	<SubTexture name="playstate idle0008" x="1" y="121" width="222" height="119"/>
+	<SubTexture name="playstate selected0000" x="224" y="121" width="294" height="142" frameX="-1" frameY="0" frameWidth="295" frameHeight="142"/>
+	<SubTexture name="playstate selected0001" x="224" y="121" width="294" height="142" frameX="-1" frameY="0" frameWidth="295" frameHeight="142"/>
+	<SubTexture name="playstate selected0002" x="224" y="121" width="294" height="142" frameX="-1" frameY="0" frameWidth="295" frameHeight="142"/>
+	<SubTexture name="playstate selected0003" x="1" y="264" width="295" height="142"/>
+	<SubTexture name="playstate selected0004" x="1" y="264" width="295" height="142"/>
+	<SubTexture name="playstate selected0005" x="1" y="264" width="295" height="142"/>
+	<SubTexture name="playstate selected0006" x="224" y="121" width="294" height="142" frameX="-1" frameY="0" frameWidth="295" frameHeight="142"/>
+	<SubTexture name="playstate selected0007" x="224" y="121" width="294" height="142" frameX="-1" frameY="0" frameWidth="295" frameHeight="142"/>
+	<SubTexture name="playstate selected0008" x="224" y="121" width="294" height="142" frameX="-1" frameY="0" frameWidth="295" frameHeight="142"/>
+	<SubTexture name="playstate selected0009" x="224" y="121" width="294" height="142" frameX="-1" frameY="0" frameWidth="295" frameHeight="142"/>
+	<SubTexture name="playstate selected0010" x="224" y="121" width="294" height="142" frameX="-1" frameY="0" frameWidth="295" frameHeight="142"/>
+	<SubTexture name="playstate selected0011" x="224" y="121" width="294" height="142" frameX="-1" frameY="0" frameWidth="295" frameHeight="142"/>
+</TextureAtlas>
