@@ -117,7 +117,7 @@ class Note extends FunkinSprite
 				swagRect.y = (center - y) / scale.y;
 				swagRect.height = (height / scale.y) - (swagRect.y);
 			}
-			this.clipRect = swagRect;
+			this.clipRect ??= swagRect;
 		}
 	}
 }

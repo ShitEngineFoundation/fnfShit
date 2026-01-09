@@ -1,5 +1,6 @@
 package funkin.backend;
 
+import flixel.math.FlxRect;
 import flixel.system.FlxAssets.FlxGraphicAsset;
 
 enum AtlasType
@@ -39,5 +40,14 @@ class FunkinSprite extends OffsetSprite
 			frames = Paths.getAnimateAtlas(atlasName);
 		else
 			frames = Paths.getSparrowAtlas(atlasName);
+	}
+
+	override function set_clipRect(r:FlxRect)
+	{
+		clipRect = r;
+
+		if (frames != null)
+			frame = frames.frames[animation.frameIndex];
+		return r;
 	}
 }

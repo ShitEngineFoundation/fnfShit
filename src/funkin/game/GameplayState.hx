@@ -1,5 +1,6 @@
 package funkin.game;
 
+import flixel.ui.FlxBar;
 import flixel.util.FlxSort;
 
 typedef StrumLineGroup = FlxTypedSpriteGroup<Strum>;
@@ -19,6 +20,11 @@ class GameplayState extends FlxTransitionableState
 
 	static public var SONG:SwagSong;
 
+	private var healthBarBG:FlxSprite;
+	private var healthBar:FlxBar;
+
+	public var health:Float = 1;
+
 	public function new(?song:SwagSong)
 	{
 		song ??= Song.loadFromJson();
@@ -31,12 +37,16 @@ class GameplayState extends FlxTransitionableState
 			SONG = song;
 
 		FlxG.sound.music.load(Paths.getSound("songs/" + SONG.song + '/sound/Inst', true));
-		if (Paths.getSound("songs/" + SONG.song + '/sound/Voices', true) != null)
-			voices = FlxG.sound.load(Paths.getSound("songs/" + SONG.song + '/sound/Voices', true));
 	}
+
+	public var iconP1:HealthIcon;
+	public var iconP2:HealthIcon;
 
 	override public function create()
 	{
+		persistentDraw = persistentUpdate = true;
+		
+		voices = FlxG.sound.load(Paths.getSound("songs/" + SONG.song + '/sound/Voices', true));
 		songSpeed = SONG.speed;
 		bgColor = FlxColor.GRAY;
 		Conductor.mapBPMChanges(SONG);
@@ -65,6 +75,23 @@ class GameplayState extends FlxTransitionableState
 		notes = new NoteGroup();
 		hudElements.add(notes);
 
+		healthBarBG = new FlxSprite(0, FlxG.height * 0.89).loadGraphic(Paths.getGraphic('healthBar'));
+		healthBarBG.screenCenter(X);
+
+		if (SaveData.currentSettings.downScroll)
+			healthBarBG.y = 0.11 * FlxG.height;
+
+		healthBar = new FlxBar(healthBarBG.x, healthBarBG.y, RIGHT_TO_LEFT, Std.int(healthBarBG.width), Std.int(healthBarBG.height), this, 'health', 0, 2);
+		healthBar.createFilledBar(0xFFFF0000, 0xFF66FF33);
+		hudElements.add(healthBar);
+		hudElements.add(healthBarBG);
+
+		iconP2 = new HealthIcon("bf", false);
+		hudElements.add(iconP2);
+
+		iconP1 = new HealthIcon("bf", true);
+		hudElements.add(iconP1);
+
 		generateNotes();
 		Conductor.onBeat.add((b) ->
 		{
@@ -82,6 +109,8 @@ class GameplayState extends FlxTransitionableState
 	public function beatHit(beat:Int)
 	{
 		notes.sort(sortNotesByTimeHelper, FlxSort.DESCENDING);
+		iconP1.bump();
+		iconP2.bump();
 	}
 
 	inline public static function sortNotesByTimeHelper(Order:Int, Obj1:Note, Obj2:Note)
@@ -189,6 +218,29 @@ class GameplayState extends FlxTransitionableState
 		else if (startedSong)
 			Conductor.songPosition = FlxG.sound.music.time;
 
+		iconP1.updateHitbox();
+		iconP2.updateHitbox();
+
+		var iconOffset:Int = 26;
+
+		iconP1.x = healthBar.x + (healthBar.width * (FlxMath.remapToRange(healthBar.percent, 0, 100, 100, 0) * 0.01) - iconOffset);
+		iconP2.x = healthBar.x + (healthBar.width * (FlxMath.remapToRange(healthBar.percent, 0, 100, 100, 0) * 0.01)) - (iconP2.width - iconOffset);
+		iconP1.y = healthBar.y - (iconP1.frameHeight * 0.5 * iconP1.baseScale);
+		iconP2.y = healthBar.y - (iconP2.frameHeight * 0.5 * iconP2.baseScale);
+
+		if (health > 2)
+			health = 2;
+
+		if (healthBar.percent < 20)
+			iconP1.animation.curAnim.curFrame = 1;
+		else
+			iconP1.animation.curAnim.curFrame = 0;
+
+		if (healthBar.percent > 80)
+			iconP2.animation.curAnim.curFrame = 1;
+		else
+			iconP2.animation.curAnim.curFrame = 0;
+
 		if (unspawnNotes.length > 0)
 		{
 			var note:Note = unspawnNotes[0];
@@ -217,8 +269,8 @@ class GameplayState extends FlxTransitionableState
 			// deletes notes out of range and causes misses if it is too late to hit
 			if (note.time <= Conductor.songPosition - (350))
 			{
-				if (!note.hit && note.mustPress)
-					trace("miss");
+				// if (!note.hit && note.mustPress)
+				//	trace("miss");
 
 				killNote(note);
 			}
