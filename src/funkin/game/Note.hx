@@ -103,7 +103,7 @@ class Note extends FunkinSprite
 		if (isSustainNote)
 		{
 			origin.y = offset.y = 0;
-			angle = scrollDir;
+			angle = scrollDir + (strum.downScroll ? 180 : 0);
 		}
 	}
 
