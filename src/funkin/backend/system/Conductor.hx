@@ -68,12 +68,13 @@ class Conductor
 			return songPosition;
 
 		__lastPos = value;
+		songPosition = value;
 
 		updateStep();
 		updateBeat();
 		updateMeasure();
 
-		return songPosition = value;
+		return value;
 	}
 
 	public static function clear()
@@ -107,7 +108,7 @@ class Conductor
 	private static function updateMeasure()
 	{
 		var lastMeasure:Float = Math.floor(measureCount);
-		measureCount = songPosition / measureLength;
+		measureCount = stepCount / 16;
 		var newMeasure:Float = Math.floor(measureCount);
 		if (lastMeasure != newMeasure)
 			onMeasure.dispatch(measureCount);
@@ -125,17 +126,6 @@ class Conductor
 
 	private static function updateStep()
 	{
-		var timeChange:BPMChangeEvent = {bpm: 0, songTime: 0, stepTime: 0};
-		for (timeChang in timeChanges)
-			if (timeChang.songTime <= Conductor.songPosition)
-			{
-				timeChange = timeChang;
-			}
-		lastTimeChange = timeChange;
-
-		if (lastTimeChange.songTime <= Conductor.songPosition && lastTimeChange.bpm > 0)
-			BPM = lastTimeChange.bpm;
-
 		var lastStep:Float = Math.floor(stepCount);
 		stepCount = lastTimeChange.stepTime + ((songPosition - lastTimeChange.songTime) / Conductor.stepLength);
 

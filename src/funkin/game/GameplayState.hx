@@ -66,12 +66,12 @@ class GameplayState extends FlxTransitionableState
 		hudElements.cameras = [camHUD];
 		add(hudElements);
 
-		opponentStrums = new StrumLineGroup(100, SaveData.currentSettings.downScroll ? FlxG.height - 150 : 50);
+		opponentStrums = new StrumLineGroup(50, SaveData.currentSettings.downScroll ? FlxG.height - 150 : 50);
 		generateStaticArrows(opponentStrums);
 		opponentStrums.alpha = SaveData.currentSettings.middleScroll ? 0 : 1;
 		hudElements.add(opponentStrums);
 
-		playerStrums = new StrumLineGroup(100 + FlxG.width / 2, opponentStrums.y);
+		playerStrums = new StrumLineGroup(50 + FlxG.width / 2, opponentStrums.y);
 		generateStaticArrows(playerStrums);
 		if (SaveData.currentSettings.middleScroll)
 			playerStrums.screenCenter(X);
