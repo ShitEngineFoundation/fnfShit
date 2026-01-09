@@ -16,10 +16,15 @@ class SaveData
 
 	public static function setVal(name:String, val:Dynamic)
 	{
-		if (Reflect.hasField(currentSettings, name))
+		try
+		{
 			Reflect.setProperty(currentSettings, name, val);
-		else
-			FlxG.log.error("SaveData: save variable " + name + 'does not exist');
+		}
+		catch (e:Dynamic)
+		{
+			Application.current.window.alert(Std.string(e), 'Error');
+		}
+		FlxG.save.flush();
 	}
 
 	public static function init()

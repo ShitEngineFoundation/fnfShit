@@ -40,4 +40,18 @@ class Strum extends FunkinSprite
 		centerOffsets();
 		centerOrigin();
 	}
+
+	override function update(dt:Float)
+	{
+		super.update(dt);
+		if (resetAnim != 0)
+		{
+			resetAnim -= dt;
+			if (resetAnim < 0)
+			{
+				resetAnim = 0;
+				playAnim("static");
+			}
+		}
+	}
 }

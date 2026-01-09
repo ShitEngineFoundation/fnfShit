@@ -115,7 +115,6 @@ class Conductor
 
 	private static function updateBeat()
 	{
-		
 		// lastTimeChange = lastChange;
 		var lastBeat:Float = Math.floor(beatCount);
 		beatCount = stepCount / 4;
@@ -134,8 +133,12 @@ class Conductor
 			}
 		lastTimeChange = timeChange;
 
+		if (lastTimeChange.songTime <= Conductor.songPosition && lastTimeChange.bpm > 0)
+			BPM = lastTimeChange.bpm;
+
 		var lastStep:Float = Math.floor(stepCount);
 		stepCount = lastTimeChange.stepTime + ((songPosition - lastTimeChange.songTime) / Conductor.stepLength);
+
 		var newStep:Float = Math.floor(stepCount);
 		if (lastStep != newStep)
 			onStep.dispatch(stepCount);
