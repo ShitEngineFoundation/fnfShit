@@ -103,7 +103,7 @@ class Note extends FunkinSprite
 		if (isSustainNote)
 		{
 			origin.y = offset.y = 0;
-			angle = scrollDir + (strum.downScroll ? 180 : 0);
+			angle = scrollDir;
 		}
 	}
 
@@ -121,7 +121,7 @@ class Note extends FunkinSprite
 		{
 			var swagRect = this.clipRect ?? new FlxRect(0, 0, frameWidth, frameHeight);
 			var center = strum.y + (160 * 0.7) * 0.5;
-			if (!flipY)
+			if (!strum.downScroll)
 			{
 				swagRect.y = (center - y) / scale.y;
 				swagRect.height = (height / scale.y) - (swagRect.y);
