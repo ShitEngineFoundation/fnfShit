@@ -5,7 +5,7 @@ import flixel.util.FlxSignal;
 
 typedef BPMChangeEvent =
 {
-	var stepTime:Int;
+	var stepTime:Float;
 	var songTime:Float;
 	var bpm:Float;
 }
@@ -31,13 +31,34 @@ class Conductor
 
 	public static var timeChanges:Array<BPMChangeEvent> = [];
 
-	public var lastTimeChange = null;
+	public static var lastTimeChange = null;
+
 	// ripped from basegame lol
 	public static function mapBPMChanges(song:SwagSong)
 	{
 		timeChanges.resize(0);
 
-		//TODO: implement 
+		var curBPM:Float = song.bpm;
+		var totalSteps:Int = 0;
+		var totalPos:Float = 0;
+		for (i in 0...song.notes.length)
+		{
+			if (song.notes[i].changeBPM && song.notes[i].bpm != curBPM)
+			{
+				curBPM = song.notes[i].bpm;
+				var event:BPMChangeEvent = {
+					stepTime: totalSteps,
+					songTime: totalPos,
+					bpm: curBPM
+				};
+				timeChanges.push(event);
+			}
+
+			var deltaSteps:Int = 16;
+			totalSteps += deltaSteps;
+			totalPos += ((60 / curBPM) * 1000 / 4) * deltaSteps;
+		}
+
 		trace("new BPM map BUDDY " + timeChanges);
 	}
 
@@ -50,7 +71,6 @@ class Conductor
 
 		updateStep();
 		updateBeat();
-		updateStep();
 		updateMeasure();
 
 		return songPosition = value;
@@ -95,9 +115,10 @@ class Conductor
 
 	private static function updateBeat()
 	{
-		beatCount = stepCount / 4;
-		lastTimeChange = lastChange;
+		
+		// lastTimeChange = lastChange;
 		var lastBeat:Float = Math.floor(beatCount);
+		beatCount = stepCount / 4;
 		var newBeat:Float = Math.floor(beatCount);
 		if (lastBeat != newBeat)
 			onBeat.dispatch(beatCount);
@@ -105,8 +126,16 @@ class Conductor
 
 	private static function updateStep()
 	{
+		var timeChange:BPMChangeEvent = {bpm: 0, songTime: 0, stepTime: 0};
+		for (timeChang in timeChanges)
+			if (timeChang.songTime <= Conductor.songPosition)
+			{
+				timeChange = timeChang;
+			}
+		lastTimeChange = timeChange;
+
 		var lastStep:Float = Math.floor(stepCount);
-		stepCount = beatCount / 4;
+		stepCount = lastTimeChange.stepTime + ((songPosition - lastTimeChange.songTime) / Conductor.stepLength);
 		var newStep:Float = Math.floor(stepCount);
 		if (lastStep != newStep)
 			onStep.dispatch(stepCount);
