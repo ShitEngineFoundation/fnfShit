@@ -241,8 +241,8 @@ class GameplayState extends FlxTransitionableState
 
 		iconP1.x = healthBar.x + (healthBar.width * (FlxMath.remapToRange(healthBar.percent, 0, 100, 100, 0) * 0.01) - iconOffset);
 		iconP2.x = healthBar.x + (healthBar.width * (FlxMath.remapToRange(healthBar.percent, 0, 100, 100, 0) * 0.01)) - (iconP2.width - iconOffset);
-		iconP1.y = healthBar.y - (iconP1.frameHeight * 0.5 * iconP1.baseScale);
-		iconP2.y = healthBar.y - (iconP2.frameHeight * 0.5 * iconP2.baseScale);
+		iconP1.y = healthBar.y - (iconP1.height * 0.5);
+		iconP2.y = healthBar.y - (iconP2.height * 0.5);
 
 		if (health > 2)
 			health = 2;

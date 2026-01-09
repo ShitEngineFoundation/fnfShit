@@ -8,6 +8,7 @@ class Strum extends FunkinSprite
 	public var downScroll:Bool = false;
 
 	public static var directions:Array<String> = ['left', 'down', 'up', 'right'];
+	public var noteDir:Float = 0;
 
 	public function new(lane:Int = 0, ?skinName:String = "NOTE_assets")
 	{

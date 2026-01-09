@@ -76,12 +76,15 @@ class Note extends FunkinSprite
 
 	public function move(strum:Strum, speed:Float = 1)
 	{
+		var scrollDir = strum.noteDir;
+		var shit = (scrollDir + 90) * Math.PI / 180;
+
 		lastScrollSpeed = speed;
 		this.strum = strum;
-		flipY = strum.downScroll;
+
 		var distanceMS:Float = (time - Conductor.songPosition) * (0.45 * lastScrollSpeed) * (strum.downScroll ? -1 : 1);
-		var tX = strum.x + (strum.width * 0.5 - width * 0.5);
-		var tY = strum.y + distanceMS;
+		var tX = strum.x + (strum.width * 0.5 - width * 0.5) + Math.cos(shit) * distanceMS;
+		var tY = strum.y + Math.sin(shit) * distanceMS;
 		if (x != tX)
 			x = tX;
 		if (y != tY)
@@ -95,7 +98,10 @@ class Note extends FunkinSprite
 			updateHitbox();
 		}
 		if (isSustainNote)
+		{
 			origin.y = offset.y = 0;
+			angle = scrollDir + (strum.downScroll ? 180 : 0);
+		}
 	}
 
 	override function draw()
@@ -116,6 +122,11 @@ class Note extends FunkinSprite
 			{
 				swagRect.y = (center - y) / scale.y;
 				swagRect.height = (height / scale.y) - (swagRect.y);
+			}
+			else
+			{
+				swagRect.height = (center - y) / scale.y;
+				swagRect.y = frameHeight - swagRect.height;
 			}
 			this.clipRect ??= swagRect;
 		}
