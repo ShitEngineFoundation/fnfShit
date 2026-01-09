@@ -43,7 +43,7 @@ class Paths {
 	}
 	public static function getSound(path:String, stream:Bool = false, soundType:SoundExtension = #if flash MP3 #else OGG #end):Sound {
 		path = getPath('$path.$soundType');
-
+		#if !sys stream = false; #end
 		if (cachedSounds.exists(path))
 			return cachedSounds.get(path);
 
