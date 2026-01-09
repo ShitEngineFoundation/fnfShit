@@ -1,8 +1,10 @@
 package funkin.menus;
 
+import funkin.game.GameplayState;
+
 class MainMenuState extends FlxTransitionableState
 {
-	public static var items:Array<String> = ["playstate","story_mode", "freeplay", "credits", "options"];
+	public static var items:Array<String> = ["playstate", "story_mode", "freeplay", "credits", "options"];
 
 	public var itemGroup:FlxTypedGroup<FunkinSprite>;
 	public var itemIndex:Int = 0;
@@ -13,6 +15,7 @@ class MainMenuState extends FlxTransitionableState
 	public override function create()
 	{
 		super.create();
+
 		bg = new FunkinSprite(0, -50, Paths.getGraphic("menus/menuDesat"));
 		bg.scale.set(1.4, 1.4);
 		bg.scrollFactor.set(0, 0.2);
@@ -96,6 +99,8 @@ class MainMenuState extends FlxTransitionableState
 				FlxTween.color(curSelected, 0.3, curSelected.color, 0xFFFFFFFF);
 				FlxG.camera.shake(0.01, 0.3);
 				FlxG.sound.play(Paths.getSound("sounds/cancelMenu"));
+			case "playstate":
+				FlxG.switchState(new GameplayState());
 			case "options":
 				FlxG.camera.fade();
 				FlxG.switchState(new OptionsState());

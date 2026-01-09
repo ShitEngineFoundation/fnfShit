@@ -1,5 +1,7 @@
 package funkin.menus;
 
+import funkin.game.GameplayState;
+
 class OptionsState extends FlxTransitionableState
 {
 	var categories = ['gameplay', 'visuals'];
@@ -53,7 +55,9 @@ class OptionsState extends FlxTransitionableState
 			changeSelected(1);
 		else if (controls.justPressed.NOTE_UP)
 			changeSelected(-1);
-        if(controls.justPressed.UI_ACCEPT) {
+		else if(controls.justPressed.UI_BACK)
+			FlxG.switchState(new MainMenuState());
+        else if(controls.justPressed.UI_ACCEPT) {
             FlxG.sound.play(Paths.getSound("sounds/confirmMenu"));
             switch(categories[itemIndex]) {
                 case "gameplay":

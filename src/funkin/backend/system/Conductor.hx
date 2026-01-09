@@ -1,6 +1,14 @@
 package funkin.backend.system;
 
+import funkin.game.Song.SwagSong;
 import flixel.util.FlxSignal;
+
+typedef BPMChangeEvent =
+{
+	var stepTime:Int;
+	var songTime:Float;
+	var bpm:Float;
+}
 
 class Conductor
 {
@@ -21,6 +29,18 @@ class Conductor
 
 	static private var __lastPos:Float = 0; // last position
 
+	public static var timeChanges:Array<BPMChangeEvent> = [];
+
+	public var lastTimeChange = null;
+	// ripped from basegame lol
+	public static function mapBPMChanges(song:SwagSong)
+	{
+		timeChanges.resize(0);
+
+		//TODO: implement 
+		trace("new BPM map BUDDY " + timeChanges);
+	}
+
 	public static function set_songPosition(value:Float):Float
 	{
 		if (value == __lastPos)
@@ -30,6 +50,7 @@ class Conductor
 
 		updateStep();
 		updateBeat();
+		updateStep();
 		updateMeasure();
 
 		return songPosition = value;
@@ -42,6 +63,7 @@ class Conductor
 		onMeasure.removeAll();
 		BPM = 100;
 		songPosition = 0;
+		timeChanges.resize(0);
 	}
 
 	public static function isInRange(time:Float = 0, range:Float = 0)
@@ -73,8 +95,9 @@ class Conductor
 
 	private static function updateBeat()
 	{
+		beatCount = stepCount / 4;
+		lastTimeChange = lastChange;
 		var lastBeat:Float = Math.floor(beatCount);
-		beatCount = songPosition / beatLength;
 		var newBeat:Float = Math.floor(beatCount);
 		if (lastBeat != newBeat)
 			onBeat.dispatch(beatCount);
@@ -83,7 +106,7 @@ class Conductor
 	private static function updateStep()
 	{
 		var lastStep:Float = Math.floor(stepCount);
-		stepCount = songPosition / stepLength;
+		stepCount = beatCount / 4;
 		var newStep:Float = Math.floor(stepCount);
 		if (lastStep != newStep)
 			onStep.dispatch(stepCount);

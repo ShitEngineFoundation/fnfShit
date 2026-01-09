@@ -14,13 +14,16 @@ class OptionCheckbox extends FunkinSprite
 		addAnimPrefix("unselected", "Check Box unselected");
 		addAnimPrefix("selected", "Check Box selecting animation");
 
+		playAnim("unselected");
+		scale.set(0.9,0.9);
+		updateHitbox();
 		playAnim(option.value ? "selected" : "unselected");
 		option.onValChange.add((option:Option) ->
 		{
 			playAnim(option.value ? "selected" : "unselected");
 		});
-		scale.set(0.5, 0.5);
-		updateHitbox();
+        
+ 
         antialiasing = true;
 	}
 
@@ -31,7 +34,7 @@ class OptionCheckbox extends FunkinSprite
 		if (x != targetX)
 			x = targetX;
 		if (y != targetY)
-			y = targetY;
+			y = targetY ;
 		super.update(elapsed);
 	}
 }

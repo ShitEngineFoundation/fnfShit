@@ -1,5 +1,6 @@
 package funkin.backend.system;
 
+import funkin.game.NoteSkin;
 import funkin.options.SaveData;
 import flixel.addons.transition.FlxTransitionSprite.GraphicTransTileCircle;
 import flixel.addons.transition.FlxTransitionSprite.GraphicTransTileDiamond;
@@ -12,16 +13,27 @@ class InitState extends FlxTransitionableState
 	{
 		super.create();
 		SaveData.init();
-		
+
 		controls = new funkin.backend.system.Controls("FNFControls");
 		FlxG.inputs.addInput(controls);
 
-
-
+		// precache
+		NoteSkin.getSkin();
+		Paths.getSparrowAtlas("notes/NOTE_assets");
 
 		var dia = FlxGraphic.fromClass(GraphicTransTileCircle);
-		FlxTransitionableState.defaultTransIn = new TransitionData(FADE,FlxColor.BLACK,0.5,FlxPoint.get(0,-1),{asset:dia,width: 32,height: 32,frameRate:122},FlxRect.get(0,0,FlxG.width,FlxG.height),NEW);
-		FlxTransitionableState.defaultTransOut = new TransitionData(FADE,FlxColor.BLACK,0.5,FlxPoint.get(0,1),{asset:dia,width: 32,height: 32,frameRate: 122},FlxRect.get(0,0,FlxG.width,FlxG.height),NEW);
+		FlxTransitionableState.defaultTransIn = new TransitionData(FADE, FlxColor.BLACK, 0.5, FlxPoint.get(0, -1), {
+			asset: dia,
+			width: 32,
+			height: 32,
+			frameRate: 122
+		}, FlxRect.get(0, 0, FlxG.width, FlxG.height), TOP);
+		FlxTransitionableState.defaultTransOut = new TransitionData(FADE, FlxColor.BLACK, 0.5, FlxPoint.get(0, 1), {
+			asset: dia,
+			width: 32,
+			height: 32,
+			frameRate: 122
+		}, FlxRect.get(0, 0, FlxG.width, FlxG.height), TOP);
 		FlxG.switchState(new funkin.menus.TitleState());
 	}
 }

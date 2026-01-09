@@ -1,5 +1,6 @@
 package funkin.menus.options;
 
+
 import funkin.menus.options.optionobjs.OptionCheckbox;
 import flixel.addons.display.FlxBackdrop;
 import flixel.addons.plugin.taskManager.FlxTask;
@@ -41,13 +42,10 @@ class BaseOptionCat extends FlxTransitionableState
 
 		option.intenName = opName;
 
-		var optionName:FlxText = new FlxText(0, 0, 0, option.intenName, 20, true);
+		var optionName:Alphabet = new Alphabet(0,0,option.intenName,true,false);
 		option.add(optionName);
 
-		optionName.borderColor = 0xFF000000;
-		optionName.borderSize = 2;
-		optionName.size += 2;
-		optionName.borderStyle = OUTLINE;
+	
 		optionsGroup.add(option);
 		option.displayText = optionName;
 		option.setPosition(0, 120 * optionsGroup.length);

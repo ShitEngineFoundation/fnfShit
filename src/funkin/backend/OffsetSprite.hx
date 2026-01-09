@@ -35,7 +35,6 @@ class OffsetSprite extends FlxAnimate
 		animController.play(animName, force, reversed, frame);
 		if (offsets.exists(animName) && isValidAnim(animName))
 		{
-
 			offset.set(offsets[animName].offsetX, offsets[animName].offsetY);
 		}
 	}

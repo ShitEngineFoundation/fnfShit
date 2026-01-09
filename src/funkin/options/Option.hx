@@ -1,5 +1,6 @@
 package funkin.options;
 
+import funkin.menus.ui.AlphabetClassic.Alphabet;
 import flixel.util.FlxSignal;
 
 enum OptionType
@@ -18,7 +19,7 @@ class Option extends FlxSpriteGroup
 	public var basic:FlxBasic;
 	public var intenName = ""; // display name
 	public var selected:Bool = false;
-	public var displayText:FlxSprite;
+	public var displayText:Alphabet;
 
 	public var onValChange:FlxTypedSignal<Option->Void> = new FlxTypedSignal<Option->Void>();
 
