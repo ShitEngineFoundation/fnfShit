@@ -33,6 +33,9 @@ class Conductor
 
 	public static var lastTimeChange = null;
 
+	public static var safeFrames:Int = 10;
+	public static var safeZoneOffset:Float = (safeFrames / 60) * 1000; // is calculated in create(), is safeFrames in milliseconds
+
 	// ripped from basegame lol
 	public static function mapBPMChanges(song:SwagSong)
 	{

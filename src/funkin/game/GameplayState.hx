@@ -268,6 +268,7 @@ class GameplayState extends FlxTransitionableState
 			}
 		}
 
+		keyPresses();
 		notes.forEachAlive((note:Note) ->
 		{
 			var strum = note.mustPress ? playerStrums.members[note.lane] : opponentStrums.members[note.lane];
@@ -285,8 +286,8 @@ class GameplayState extends FlxTransitionableState
 			// deletes notes out of range and causes misses if it is too late to hit
 			if (note.time <= Conductor.songPosition - (350))
 			{
-				// if (!note.hit && note.mustPress)
-				//	trace("miss");
+				if (!note.hit && note.mustPress)
+					missNote(note);
 
 				killNote(note);
 			}
@@ -298,5 +299,91 @@ class GameplayState extends FlxTransitionableState
 	{
 		note.destroy();
 		notes.remove(note, true);
+	}
+
+	public var hitNotes:Array<Note> = [];
+	public var directions:Array<Int> = [];
+
+	var keyPress:Array<Bool> = [];
+	var keyHold:Array<Bool> = [];
+	var keyReleased:Array<Bool> = [];
+
+	public function keyPresses():Void
+	{
+		for (i in hitNotes)
+			hitNotes.remove(i);
+		for (i in directions)
+			directions.remove(i);
+
+		// fuck this  shitty function name!
+		keyPress = [
+			controls.justPressed.NOTE_LEFT,
+			controls.justPressed.NOTE_DOWN,
+			controls.justPressed.NOTE_UP,
+			controls.justPressed.NOTE_RIGHT
+		];
+		keyHold = [
+			controls.pressed.NOTE_LEFT,
+			controls.pressed.NOTE_DOWN,
+			controls.pressed.NOTE_UP,
+			controls.pressed.NOTE_RIGHT
+		];
+
+		keyReleased = [
+			controls.justReleased.NOTE_LEFT,
+			controls.justReleased.NOTE_DOWN,
+			controls.justReleased.NOTE_UP,
+			controls.justReleased.NOTE_RIGHT
+		];
+
+		playerStrums.forEachAlive(function(strum:Strum)
+		{
+			if (keyPress[strum.lane])
+				strum.playAnim('press', true);
+			else if (!keyHold[strum.lane])
+				strum.playAnim('static', false);
+		});
+
+		for (note in notes.members.filter((n:Note) -> return (n.canBeHit && n.alive && n.mustPress && !n.hit)))
+		{
+			hitNotes.push(note);
+			directions.push(note.lane);
+		}
+
+		if (hitNotes.length > 0)
+		{
+			for (shit in 0...keyPress.length)
+				if (keyPress[shit] && !directions.contains(shit))
+					miss(shit);
+
+			for (daN in hitNotes)
+			{
+				if (keyPress[daN.lane] && daN.canBeHit)
+					playerHit(daN);
+				if (!daN.ignoreNote && keyHold[daN.lane] && (daN.canBeHit) && daN.isSustainNote)
+					playerHit(daN);
+			}
+		}
+	}
+
+	function playerHit(daN:Note)
+	{
+		var strum = playerStrums.members[daN.lane];
+		strum.playAnim("confirm", true);
+
+		daN.hit = true;
+		if (!daN.isSustainNote)
+			killNote(daN);
+		health += 0.04;
+	}
+
+	function miss(shit:Int)
+	{
+		health -= 0.02;
+	}
+
+	function missNote(note:Note)
+	{
+		miss(note.lane);
 	}
 }

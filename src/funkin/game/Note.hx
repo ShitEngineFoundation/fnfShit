@@ -18,6 +18,9 @@ class Note extends FunkinSprite
 	public var prevNote:Note;
 	public var hit:Bool = false;
 
+	public var canBeHit(get, null):Bool;
+	public var ignoreNote(default, null):Bool = false;
+
 	public function new(lane:Int = 0, time:Float = 0, mustPress:Bool = false, ?isSustainNote:Bool = false, ?sustainLength:Float = 0, ?prevNote:Note,
 			?skinName:String = "NOTE_assets")
 	{
@@ -130,5 +133,11 @@ class Note extends FunkinSprite
 			}
 			this.clipRect ??= swagRect;
 		}
+	}
+
+	function get_canBeHit():Bool
+	{
+		return (time <= Conductor.songPosition + Conductor.safeZoneOffset * 0.5
+			&& !(time <= Conductor.songPosition - Conductor.safeZoneOffset * 0.5));
 	}
 }
