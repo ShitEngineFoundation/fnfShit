@@ -1,5 +1,6 @@
 package funkin.game;
 
+import flixel.addons.display.FlxZoomCamera;
 import flixel.ui.FlxBar;
 import flixel.util.FlxSort;
 
@@ -45,7 +46,7 @@ class GameplayState extends FlxTransitionableState
 	override public function create()
 	{
 		persistentDraw = persistentUpdate = true;
-		
+		FlxG.cameras.reset(new FlxZoomCamera(0, 0, FlxG.width, FlxG.height, 1));
 		voices = FlxG.sound.load(Paths.getSound("songs/" + SONG.song + '/sound/Voices', true));
 		songSpeed = SONG.speed;
 		bgColor = FlxColor.GRAY;
@@ -54,9 +55,13 @@ class GameplayState extends FlxTransitionableState
 		Conductor.songPosition = -Conductor.stepLength * 5;
 		super.create();
 
-		camHUD = new FlxCamera();
+		camHUD = new FlxZoomCamera(0, 0, FlxG.width, FlxG.height, 1);
 		camHUD.bgColor = 0x0;
 		FlxG.cameras.add(camHUD, false);
+
+		for (camera in FlxG.cameras.list)
+			if (camera is FlxZoomCamera)
+				cast(camera, FlxZoomCamera).zoomSpeed = 12.5;
 
 		hudElements.cameras = [camHUD];
 		add(hudElements);
@@ -103,14 +108,12 @@ class GameplayState extends FlxTransitionableState
 			stepHit(Math.floor(b));
 		});
 
-		startCountdown();
-	}
+		Conductor.onMeasure.add((b) ->
+		{
+			sectionHit(Math.floor(b));
+		});
 
-	public function beatHit(beat:Int)
-	{
-		notes.sort(sortNotesByTimeHelper, FlxSort.DESCENDING);
-		iconP1.bump();
-		iconP2.bump();
+		startCountdown();
 	}
 
 	inline public static function sortNotesByTimeHelper(Order:Int, Obj1:Note, Obj2:Note)
@@ -123,6 +126,19 @@ class GameplayState extends FlxTransitionableState
 			if (Math.abs(voices.time - Conductor.songPosition) > 10)
 				voices.time = Conductor.songPosition;
 		}
+	}
+
+	public function beatHit(beat:Int)
+	{
+		notes.sort(sortNotesByTimeHelper, FlxSort.DESCENDING);
+		iconP1.bump();
+		iconP2.bump();
+	}
+
+	public function sectionHit(section:Int)
+	{
+		camHUD.zoom += 0.03;
+		FlxG.camera.zoom += 0.015;
 	}
 
 	function generateNotes()
