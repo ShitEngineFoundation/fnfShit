@@ -171,7 +171,7 @@ class GameplayState extends FlxTransitionableState
 				{
 					for (segmentID in 0...Math.floor(holdLength / stepLength))
 					{
-						final extra:Float = (stepLength * segmentID) + (stepLength / 2);
+						final extra:Float = (stepLength * segmentID) + 10;
 						var sustain:Note = new Note(lane, note.time + extra, mustHitNote, true, stepLength, unspawnNotes[unspawnNotes.length - 1],
 							strum.lastSkinName);
 						sustain.setPosition(-sustain.width * 2, -sustain.height * 2);
@@ -374,7 +374,7 @@ class GameplayState extends FlxTransitionableState
 		daN.hit = true;
 		if (!daN.isSustainNote)
 			killNote(daN);
-		health += 0.04;
+		health += 0.025;
 	}
 
 	function miss(shit:Int)

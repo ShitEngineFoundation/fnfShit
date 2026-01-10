@@ -86,8 +86,12 @@ class Note extends FunkinSprite
 		this.strum = strum;
 
 		var distanceMS:Float = (time - Conductor.songPosition) * (0.45 * lastScrollSpeed) * (strum.downScroll ? -1 : 1);
-		var tX = strum.x + (strum.width * 0.5 - width * 0.5) + Math.cos(shit) * distanceMS;
+		var tX = strum.x + Math.cos(shit) * distanceMS;
+		tX += (strum.width * 0.5 - width * 0.5);
+
 		var tY = strum.y + Math.sin(shit) * distanceMS;
+		if (isSustainNote)
+			tY += strum.width / 2;
 		if (x != tX)
 			x = tX;
 		if (y != tY)
@@ -102,6 +106,8 @@ class Note extends FunkinSprite
 		}
 		if (isSustainNote)
 		{
+			centerOffsets();
+			centerOrigin();
 			origin.y = offset.y = 0;
 			angle = scrollDir;
 			flipY = strum.downScroll;
