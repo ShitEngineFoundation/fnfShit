@@ -20,6 +20,7 @@ class Note extends FunkinSprite
 
 	public var canBeHit(get, null):Bool;
 	public var ignoreNote(default, null):Bool = false;
+	public var parent(default, null):Note;
 
 	public function new(lane:Int = 0, time:Float = 0, mustPress:Bool = false, ?isSustainNote:Bool = false, ?sustainLength:Float = 0, ?prevNote:Note,
 			?skinName:String = "NOTE_assets")

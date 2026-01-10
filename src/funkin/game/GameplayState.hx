@@ -175,6 +175,8 @@ class GameplayState extends FlxTransitionableState
 						var sustain:Note = new Note(lane, note.time + extra, mustHitNote, true, stepLength, unspawnNotes[unspawnNotes.length - 1],
 							strum.lastSkinName);
 						sustain.setPosition(-sustain.width * 2, -sustain.height * 2);
+						@:privateAccess
+						sustain.parent = note;
 						unspawnNotes.push(sustain);
 					}
 				}
@@ -358,9 +360,9 @@ class GameplayState extends FlxTransitionableState
 
 			for (daN in hitNotes)
 			{
-				if (keyPress[daN.lane] && daN.canBeHit)
+				if (keyPress[daN.lane] && daN.canBeHit && !daN.isSustainNote)
 					playerHit(daN);
-				if (!daN.ignoreNote && keyHold[daN.lane] && (daN.canBeHit) && daN.isSustainNote)
+				if (keyHold[daN.lane] && (daN.canBeHit) && daN.isSustainNote)
 					playerHit(daN);
 			}
 		}
@@ -374,7 +376,7 @@ class GameplayState extends FlxTransitionableState
 		daN.hit = true;
 		if (!daN.isSustainNote)
 			killNote(daN);
-		health += 0.025;
+		health += 0.025 * (daN.isSustainNote ? 0.5 : 1);
 	}
 
 	function miss(shit:Int)

@@ -1,5 +1,7 @@
 package funkin.game;
 
+import flixel.tweens.FlxEase;
+
 class HealthIcon extends FunkinSprite
 {
 	public var isPlayer = false;
@@ -33,6 +35,6 @@ class HealthIcon extends FunkinSprite
 		updateHitbox();
 
 		FlxTween.cancelTweensOf(scale);
-		FlxTween.tween(scale, {x: baseScale, y: baseScale}, 0.2);
+		FlxTween.tween(scale, {x: baseScale, y: baseScale}, Conductor.beatLength * 0.5 / 1000,{ease: FlxEase.sineInOut});
 	}
 }
