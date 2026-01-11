@@ -1,9 +1,6 @@
 package funkin.game;
 
-import flixel.math.FlxPoint;
-import flixel.system.FlxAssets.FlxAngelCodeAsset;
-import flixel.text.FlxBitmapText;
-import flixel.text.FlxBitmapFont;
+import funkin.game.stage.Character;
 import funkin.game.judgement.Judgement;
 import funkin.game.judgement.JudgementHandler;
 import funkin.game.sub.PauseSubState;
@@ -16,6 +13,15 @@ typedef NoteGroup = FlxTypedGroup<Note>;
 
 class GameplayState extends FlxTransitionableState
 {
+	public var BF_X:Float = 770;
+	public var BF_Y:Float = 100;
+	public var DAD_X:Float = 100;
+	public var DAD_Y:Float = 100;
+	public var GF_X:Float = 400;
+	public var GF_Y:Float = 130;
+
+	public var camFollow:FlxObject = new FlxObject(0, 0, 1, 1);
+
 	static var self:GameplayState;
 
 	public var camHUD:FlxCamera;
@@ -34,6 +40,10 @@ class GameplayState extends FlxTransitionableState
 	public var health:Float = 1;
 	public var misses:Int = 0;
 
+	public var dad:Character;
+	public var gf:Character;
+	public var bf:Character;
+
 	public function new(?song:SwagSong)
 	{
 		song ??= Song.loadFromJson();
@@ -45,7 +55,12 @@ class GameplayState extends FlxTransitionableState
 		if (song != null)
 			SONG = song;
 
-		FlxG.sound.music.load(Paths.getSound("songs/" + SONG.song + '/sound/Inst', true));
+		dad = new Character(SONG.player2);
+		gf = new Character(SONG.gfVersion ?? 'gf');
+		bf = new Character(SONG.player1, true);
+
+		if (gf.curCharacter == dad.curCharacter)
+			gf.visible = false;
 	}
 
 	public var iconP1:HealthIcon;
@@ -53,9 +68,14 @@ class GameplayState extends FlxTransitionableState
 
 	override public function create()
 	{
+		// preload stuff
+		FlxG.sound.music.load(Paths.getSound("songs/" + SONG.song + '/sound/Inst', true));
+		voices = FlxG.sound.load(Paths.getSound("songs/" + SONG.song + '/sound/Voices', true));
+
+		// set up stuff
 		persistentDraw = persistentUpdate = true;
 		FlxG.cameras.reset(new FlxZoomCamera(0, 0, FlxG.width, FlxG.height, 1));
-		voices = FlxG.sound.load(Paths.getSound("songs/" + SONG.song + '/sound/Voices', true));
+
 		songSpeed = SONG.speed;
 		bgColor = FlxColor.GRAY;
 		Conductor.mapBPMChanges(SONG);
@@ -63,6 +83,21 @@ class GameplayState extends FlxTransitionableState
 		Conductor.songPosition = -Conductor.stepLength * 5;
 		super.create();
 
+		add(gf);
+		add(dad);
+		add(bf);
+
+		bf.setPosition(BF_X, BF_Y);
+		dad.setPosition(DAD_X, DAD_Y);
+		gf.setPosition(GF_X, GF_Y);
+
+		for (char in [dad, bf, gf])
+		{
+			char.x += char.json.pos_offset[0];
+			char.y += char.json.pos_offset[1];
+		}
+
+		// set up camhud
 		camHUD = new FlxZoomCamera(0, 0, FlxG.width, FlxG.height, 1);
 		camHUD.bgColor = 0x0;
 		FlxG.cameras.add(camHUD, false);
@@ -74,6 +109,7 @@ class GameplayState extends FlxTransitionableState
 		hudElements.cameras = [camHUD];
 		add(hudElements);
 
+		// make them grey arrows appear
 		opponentStrums = new StrumLineGroup(50, SaveData.currentSettings.downScroll ? FlxG.height - 150 : 50);
 		generateStaticArrows(opponentStrums);
 		opponentStrums.alpha = SaveData.currentSettings.middleScroll ? 0 : 1;
@@ -133,6 +169,8 @@ class GameplayState extends FlxTransitionableState
 		});
 
 		startCountdown();
+		FlxG.camera.follow(camFollow, LOCKON, 0.06);
+		moveCameraToCharacter(dad);
 	}
 
 	inline public static function sortNotesByTimeHelper(Order:Int, Obj1:Note, Obj2:Note)
@@ -152,12 +190,23 @@ class GameplayState extends FlxTransitionableState
 		notes.sort(sortNotesByTimeHelper, FlxSort.DESCENDING);
 		iconP1.bump();
 		iconP2.bump();
+
+		gf.dance(beat);
+		dad.dance(beat);
+		bf.dance(beat);
 	}
 
 	public function sectionHit(section:Int)
 	{
 		camHUD.zoom += 0.03;
 		FlxG.camera.zoom += 0.015;
+
+		var section = SONG.notes[section];
+		if (section != null)
+		{
+			var char = section.mustHitSection ? bf : dad;
+			moveCameraToCharacter(char);
+		}
 	}
 
 	function generateNotes()
@@ -300,6 +349,7 @@ class GameplayState extends FlxTransitionableState
 				strum.playAnim("confirm", true);
 				strum.resetAnim = Conductor.stepLength * 1.5 / 1000;
 				note.hit = true;
+				dad.hitNote(note);
 				if (!note.isSustainNote)
 					killNote(note);
 			}
@@ -422,7 +472,7 @@ class GameplayState extends FlxTransitionableState
 
 		var strum = playerStrums.members[daN.lane];
 		strum.playAnim("confirm", true);
-
+		bf.hitNote(daN);
 		if (!daN.isSustainNote)
 			killNote(daN);
 
@@ -463,5 +513,28 @@ class GameplayState extends FlxTransitionableState
 	function missNote(note:Note)
 	{
 		miss(note.lane);
+	}
+
+	public var opponentCameraOffset = [0.0, 0.0];
+	public var boyfriendCameraOffset = [0.0, 0.0];
+
+	public function moveCameraToCharacter(char:Character)
+	{
+		if (char == null)
+			return;
+
+		var isDad = !char.player;
+		if (isDad)
+		{
+			camFollow.setPosition(char.getMidpoint().x + 150, char.getMidpoint().y - 100);
+			camFollow.x += char.json.cam_offset[0] + opponentCameraOffset[0];
+			camFollow.y += char.json.cam_offset[1] + opponentCameraOffset[1];
+		}
+		else
+		{
+			camFollow.setPosition(char.getMidpoint().x - 100, char.getMidpoint().y - 100);
+			camFollow.x -= char.json.cam_offset[0] - boyfriendCameraOffset[0];
+			camFollow.y += char.json.cam_offset[1] + boyfriendCameraOffset[1];
+		}
 	}
 }
