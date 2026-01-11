@@ -35,6 +35,6 @@ class HealthIcon extends FunkinSprite
 		updateHitbox();
 
 		FlxTween.cancelTweensOf(scale);
-		FlxTween.tween(scale, {x: baseScale, y: baseScale}, Conductor.beatLength * 0.5 / 1000,{ease: FlxEase.sineInOut});
+		FlxTween.tween(scale, {x: baseScale, y: baseScale}, 0.3);
 	}
 }

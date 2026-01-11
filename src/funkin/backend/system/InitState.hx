@@ -1,5 +1,6 @@
 package funkin.backend.system;
 
+import funkin.game.judgement.JudgementHandler;
 import funkin.game.NoteSkin;
 import funkin.options.SaveData;
 import flixel.addons.transition.FlxTransitionSprite.GraphicTransTileCircle;
@@ -13,6 +14,7 @@ class InitState extends FlxTransitionableState
 	{
 		super.create();
 		SaveData.init();
+		JudgementHandler.judgements.reverse();
 
 		controls = new funkin.backend.system.Controls("FNFControls");
 		FlxG.inputs.addInput(controls);

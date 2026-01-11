@@ -146,6 +146,6 @@ class Note extends FunkinSprite
 	function get_canBeHit():Bool
 	{
 		return (time <= Conductor.songPosition + Conductor.safeZoneOffset * 0.5
-			&& !(time <= Conductor.songPosition - Conductor.safeZoneOffset * 0.5));
+			&& !(time <= Conductor.songPosition - Conductor.safeZoneOffset * 1));
 	}
 }

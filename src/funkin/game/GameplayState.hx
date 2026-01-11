@@ -1,5 +1,12 @@
 package funkin.game;
 
+import flixel.math.FlxPoint;
+import flixel.system.FlxAssets.FlxAngelCodeAsset;
+import flixel.text.FlxBitmapText;
+import flixel.text.FlxBitmapFont;
+import funkin.game.judgement.Judgement;
+import funkin.game.judgement.JudgementHandler;
+import funkin.game.sub.PauseSubState;
 import flixel.addons.display.FlxZoomCamera;
 import flixel.ui.FlxBar;
 import flixel.util.FlxSort;
@@ -25,6 +32,7 @@ class GameplayState extends FlxTransitionableState
 	private var healthBar:FlxBar;
 
 	public var health:Float = 1;
+	public var misses:Int = 0;
 
 	public function new(?song:SwagSong)
 	{
@@ -96,6 +104,17 @@ class GameplayState extends FlxTransitionableState
 
 		iconP1 = new HealthIcon("bf", true);
 		hudElements.add(iconP1);
+
+		comboGroup = new FlxTypedSpriteGroup<Alphabet>();
+		add(comboGroup);
+
+		scoreTxt = new FlxText(0, 0, "Score: 0 // Misses: 0");
+		scoreTxt.setFormat(Paths.getFont("vcr"), 15, FlxColor.WHITE, null, OUTLINE, FlxColor.BLACK);
+		scoreTxt.borderSize = 1;
+		scoreTxt.antialiasing = true;
+		scoreTxt.screenCenter(X);
+		scoreTxt.y = healthBar.y + 20;
+		hudElements.add(scoreTxt);
 
 		generateNotes();
 		Conductor.onBeat.add((b) ->
@@ -243,8 +262,8 @@ class GameplayState extends FlxTransitionableState
 
 		iconP1.x = healthBar.x + (healthBar.width * (FlxMath.remapToRange(healthBar.percent, 0, 100, 100, 0) * 0.01) - iconOffset);
 		iconP2.x = healthBar.x + (healthBar.width * (FlxMath.remapToRange(healthBar.percent, 0, 100, 100, 0) * 0.01)) - (iconP2.width - iconOffset);
-		iconP1.y = healthBar.y - (iconP1.height * 0.5);
-		iconP2.y = healthBar.y - (iconP2.height * 0.5);
+		iconP1.y = healthBar.y - (iconP1.frameHeight * 0.5);
+		iconP2.y = healthBar.y - (iconP2.frameHeight * 0.5);
 
 		if (health > 2)
 			health = 2;
@@ -289,12 +308,40 @@ class GameplayState extends FlxTransitionableState
 			if (note.time <= Conductor.songPosition - (350))
 			{
 				if (!note.hit && note.mustPress)
+				{
 					missNote(note);
+					combo = 0;
+				}
 
 				killNote(note);
 			}
 		});
 		super.update(elapsed);
+		if (controls.justPressed.UI_ACCEPT)
+		{
+			pause();
+		}
+		scoreTxt.screenCenter(X);
+		scoreTxt.text = "Score: " + score + ' // Misses: $misses';
+	}
+
+	function pause()
+	{
+		FlxG.sound.music.pause();
+		voices?.pause();
+		var ps = new PauseSubState();
+		ps.cameras = [camHUD];
+		camHUD.zoom = 1;
+		persistentUpdate = false;
+		openSubState(ps);
+	}
+
+	override function closeSubState()
+	{
+		super.closeSubState();
+		FlxG.sound.music.resume();
+		voices?.resume();
+		persistentUpdate = true;
 	}
 
 	public function killNote(note:Note)
@@ -370,18 +417,47 @@ class GameplayState extends FlxTransitionableState
 
 	function playerHit(daN:Note)
 	{
+		var Judgement = JudgementHandler.getJudgementFromNote(daN);
+		daN.hit = true;
+
 		var strum = playerStrums.members[daN.lane];
 		strum.playAnim("confirm", true);
 
-		daN.hit = true;
 		if (!daN.isSustainNote)
 			killNote(daN);
-		health += 0.025 * (daN.isSustainNote ? 0.5 : 1);
+
+		var healthGain:Float = 0.023 * (daN.isSustainNote ? 0.5 : 1);
+		if (daN.isSustainNote)
+			healthGain = 0;
+		health += healthGain;
+		if (!Judgement.misses)
+			score += Judgement.score;
+		else
+		{
+			health -= healthGain;
+			missNote(daN);
+			strum.playAnim("press", true);
+		}
+		if (Judgement.breaksCombo)
+		{
+			combo = 0;
+		}
+		else
+			combo++;
 	}
+
+	public var comboGroup:FlxTypedSpriteGroup<Alphabet>;
+
+	public var combo:Int = 0;
+	public var score:Float = 0;
+
+	public var scoreTxt:FlxText;
 
 	function miss(shit:Int)
 	{
-		health -= 0.02;
+		health -= 0.04;
+		score -= 150;
+		misses++;
 	}
 
 	function missNote(note:Note)
