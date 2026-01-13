@@ -64,7 +64,7 @@ class AdapterShit implements IAdapter
 
 	public function isHoldEnd(sprite:FlxSprite):Bool
 	{
-		return sprite.animation.name.contains('end') && isTapNote(sprite);
+		return sprite.animation.name.contains('cap') && isTapNote(sprite);
 	}
 
 	public function arrowHit(sprite:FlxSprite):Bool
@@ -178,10 +178,11 @@ class AdapterShit implements IAdapter
 			[cast GameplayState.self.getStrumline(1).members, [], []]
 		];
 
-        for(noteID in 0...GameplayState.self.notes.length) {
-            var note:Note = GameplayState.self.notes.members[noteID];
-            itemsLol[getPlayerFromArrow(note)][note.isSustainNote ? 2 : 1].push(note);
-        }
+		for (noteID in 0...GameplayState.self.notes.length)
+		{
+			var note:Note = GameplayState.self.notes.members[noteID];
+			itemsLol[getPlayerFromArrow(note)][note.isSustainNote ? 2 : 1].push(note);
+		}
 		return itemsLol;
 	}
 }

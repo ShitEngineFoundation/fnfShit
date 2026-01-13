@@ -102,7 +102,7 @@ class Note extends FunkinSprite
 
 		if (isSustainNote)
 		{
-			if (!animation.name.contains('end'))
+			if (!animation.name.contains('cap'))
 				scale.y = (0.45 * sustainLength * speed) / frameHeight;
 			updateHitbox();
 
