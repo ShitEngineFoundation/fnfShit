@@ -1,5 +1,6 @@
 package funkin.game;
 
+#if modchart import modchart.Manager; #end
 import funkin.game.stage.Character;
 import funkin.game.judgement.Judgement;
 import funkin.game.judgement.JudgementHandler;
@@ -22,7 +23,7 @@ class GameplayState extends FlxTransitionableState
 
 	public var camFollow:FlxObject = new FlxObject(0, 0, 1, 1);
 
-	static var self:GameplayState;
+	public static var self:GameplayState;
 
 	public var camHUD:FlxCamera;
 	public var hudElements:FlxGroup;
@@ -44,16 +45,16 @@ class GameplayState extends FlxTransitionableState
 	public var gf:Character;
 	public var bf:Character;
 
-	public function new(?song:SwagSong)
+	#if modchart public var funkin_modchart_instance:Manager; #end
+
+	public function new()
 	{
-		song ??= Song.loadFromJson();
 		super();
 		self = this;
 
 		hudElements = new FlxGroup();
 		FlxG.sound.music.stop();
-		if (song != null)
-			SONG = song;
+		SONG ??= Song.loadFromJson();
 
 		dad = new Character(SONG.player2);
 		gf = new Character(SONG.gfVersion ?? 'gf');
@@ -61,6 +62,8 @@ class GameplayState extends FlxTransitionableState
 
 		if (gf.curCharacter == dad.curCharacter)
 			gf.visible = false;
+
+		#if modchart funkin_modchart_instance = new Manager(); #end
 	}
 
 	public var iconP1:HealthIcon;
@@ -69,7 +72,7 @@ class GameplayState extends FlxTransitionableState
 	override public function create()
 	{
 		// preload stuff
-		FlxG.sound.music.load(Paths.getSound("songs/" + SONG.song + '/sound/Inst', true));
+		FlxG.sound.music.loadEmbedded(Paths.getSound("songs/" + SONG.song + '/sound/Inst', true));
 		voices = FlxG.sound.load(Paths.getSound("songs/" + SONG.song + '/sound/Voices', true));
 
 		// set up stuff
@@ -121,9 +124,12 @@ class GameplayState extends FlxTransitionableState
 			playerStrums.screenCenter(X);
 		hudElements.add(playerStrums);
 
+		#if modchart hudElements.add(funkin_modchart_instance); #end
+
 		notes = new NoteGroup();
 		hudElements.add(notes);
 
+	
 		healthBarBG = new FlxSprite(0, FlxG.height * 0.89).loadGraphic(Paths.getGraphic('healthBar'));
 		healthBarBG.screenCenter(X);
 
@@ -239,7 +245,7 @@ class GameplayState extends FlxTransitionableState
 				{
 					for (segmentID in 0...Math.floor(holdLength / stepLength))
 					{
-						final extra:Float = (stepLength * segmentID) + 10;
+						final extra:Float = (stepLength * segmentID) + (Conductor.stepLength / songSpeed);
 						var sustain:Note = new Note(lane, note.time + extra, mustHitNote, true, stepLength, unspawnNotes[unspawnNotes.length - 1],
 							strum.lastSkinName);
 						sustain.setPosition(-sustain.width * 2, -sustain.height * 2);
@@ -347,15 +353,16 @@ class GameplayState extends FlxTransitionableState
 			if (!note.mustPress && note.time <= Conductor.songPosition && !note.hit)
 			{
 				strum.playAnim("confirm", true);
-				strum.resetAnim = Conductor.stepLength * 1.5 / 1000;
+				strum.resetAnim = 0.15;
 				note.hit = true;
 				dad.hitNote(note);
+
 				if (!note.isSustainNote)
 					killNote(note);
 			}
 
 			// deletes notes out of range and causes misses if it is too late to hit
-			if (note.time <= Conductor.songPosition - (350))
+			if (note.time <= Conductor.songPosition - (Conductor.safeZoneOffset * 1))
 			{
 				if (!note.hit && note.mustPress)
 				{
@@ -373,6 +380,9 @@ class GameplayState extends FlxTransitionableState
 		}
 		scoreTxt.screenCenter(X);
 		scoreTxt.text = "Score: " + score + ' // Misses: $misses';
+
+		if (FlxG.keys.justPressed.SEVEN)
+			FlxG.switchState(new funkin.menus.charter.ChartingState());
 	}
 
 	function pause()
@@ -473,12 +483,9 @@ class GameplayState extends FlxTransitionableState
 		var strum = playerStrums.members[daN.lane];
 		strum.playAnim("confirm", true);
 		bf.hitNote(daN);
-		if (!daN.isSustainNote)
-			killNote(daN);
 
 		var healthGain:Float = 0.023 * (daN.isSustainNote ? 0.5 : 1);
-		if (daN.isSustainNote)
-			healthGain = 0;
+
 		health += healthGain;
 		if (!Judgement.misses)
 			score += Judgement.score;
@@ -494,6 +501,8 @@ class GameplayState extends FlxTransitionableState
 		}
 		else
 			combo++;
+		if (!daN.isSustainNote)
+			killNote(daN);
 	}
 
 	public var comboGroup:FlxTypedSpriteGroup<Alphabet>;
@@ -513,6 +522,18 @@ class GameplayState extends FlxTransitionableState
 	function missNote(note:Note)
 	{
 		miss(note.lane);
+	}
+
+	override function destroy()
+	{
+		for (note in unspawnNotes)
+		{
+			note.destroy();
+			unspawnNotes[unspawnNotes.indexOf(note)] = null;
+			note = null;
+		}
+		unspawnNotes.resize(0);
+		super.destroy();
 	}
 
 	public var opponentCameraOffset = [0.0, 0.0];
@@ -536,5 +557,10 @@ class GameplayState extends FlxTransitionableState
 			camFollow.x -= char.json.cam_offset[0] - boyfriendCameraOffset[0];
 			camFollow.y += char.json.cam_offset[1] + boyfriendCameraOffset[1];
 		}
+	}
+
+	public function getStrumline(player:Int)
+	{
+		return player == 0 ? opponentStrums : playerStrums;
 	}
 }

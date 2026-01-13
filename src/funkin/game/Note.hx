@@ -91,8 +91,8 @@ class Note extends FunkinSprite
 		tX += (strum.width * 0.5 - width * 0.5);
 
 		var tY = strum.y + Math.sin(shit) * distanceMS;
-		if (isSustainNote)
-			tY += strum.width / 2;
+		//	if (isSustainNote)
+		//		tY += strum.height / 2;
 		if (x != tX)
 			x = tX;
 		if (y != tY)
@@ -100,18 +100,18 @@ class Note extends FunkinSprite
 		if (alpha != strum.alpha * multAlpha)
 			alpha = strum.alpha * multAlpha;
 
-		if (isSustainNote && animation.name == 'segment')
-		{
-			scale.y = (0.45 * sustainLength * speed) / frameHeight;
-			updateHitbox();
-		}
 		if (isSustainNote)
 		{
+			if (!animation.name.contains('end'))
+				scale.y = (0.45 * sustainLength * speed) / frameHeight;
+			updateHitbox();
+
 			centerOffsets();
 			centerOrigin();
 			origin.y = offset.y = 0;
 			angle = scrollDir;
 			flipY = strum.downScroll;
+			flipX = flipY;
 		}
 	}
 

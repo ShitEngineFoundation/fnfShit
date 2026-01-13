@@ -4,13 +4,16 @@ import animate.FlxAnimateFrames;
 import flixel.graphics.frames.FlxFramesCollection;
 import openfl.media.Sound;
 
-class Paths {
+class Paths
+{
 	public static var cachedImages:haxe.ds.StringMap<FlxGraphic> = new haxe.ds.StringMap<FlxGraphic>();
 	public static var cachedSounds:haxe.ds.StringMap<Sound> = new haxe.ds.StringMap<Sound>();
 	public static var cachedAtlases:haxe.ds.StringMap<FlxFramesCollection> = new haxe.ds.StringMap<FlxFramesCollection>();
 
-	public static function clearGraphics() {
-		for (img in cachedImages) {
+	public static function clearGraphics()
+	{
+		for (img in cachedImages)
+		{
 			if (img == null || img.destroyOnNoUse)
 				continue;
 
@@ -26,7 +29,8 @@ class Paths {
 	public static inline function getPath(path:String)
 		return 'assets/$path';
 
-	public static function getGraphic(path:String):FlxGraphic {
+	public static function getGraphic(path:String):FlxGraphic
+	{
 		path = getPath('images/$path.png');
 		if (cachedImages.exists(path))
 			return cachedImages.get(path);
@@ -41,7 +45,9 @@ class Paths {
 		cachedImages.set(path, graphic);
 		return graphic;
 	}
-	public static function getSound(path:String, stream:Bool = false, soundType:SoundExtension = #if flash MP3 #else OGG #end):Sound {
+
+	public static function getSound(path:String, stream:Bool = false, soundType:SoundExtension = #if flash MP3 #else OGG #end):Sound
+	{
 		path = getPath('$path.$soundType');
 		#if !sys stream = false; #end
 		if (cachedSounds.exists(path))
@@ -50,19 +56,21 @@ class Paths {
 		if (!OpenFLAssets.exists(path))
 			return null;
 
-		var sound:Sound = stream ? FlxG.assets.streamSound(path) : FlxG.assets.getSound(path, false);
+		var sound:Sound = #if FLX_STREAM_SOUND stream ? FlxG.assets.streamSound(path) : #end FlxG.assets.getSound(path, false);
 		cachedSounds.set(path, sound);
 		return sound;
 	}
 
-	public static function getFont(path:String, fontType:FontExtension = TTF):String {
+	public static function getFont(path:String, fontType:FontExtension = TTF):String
+	{
 		path = getPath('fonts/$path.$fontType');
 
 		return path;
 	}
 
 	//* for example, notes/poo, xml and png get added on their own
-	public static function getSparrowAtlas(path:String):FlxAtlasFrames {
+	public static function getSparrowAtlas(path:String):FlxAtlasFrames
+	{
 		var pathXML = getPath('images/$path.xml');
 		var pathPng = getPath('images/$path.png');
 
@@ -80,7 +88,8 @@ class Paths {
 		return atlas;
 	}
 
-	public static function getAnimateAtlas(path:String):FlxAnimateFrames {
+	public static function getAnimateAtlas(path:String):FlxAnimateFrames
+	{
 		var path = getPath('images/$path');
 		final animJSON = path + "/Animation.json";
 
@@ -95,6 +104,7 @@ class Paths {
 		atlas.parent.persist = true;
 		return atlas;
 	}
+
 	/**
 	 * @author TheRealJake12, slightly edited by LeonGamerPS1
 	 * Wack Ass Attempt To Make An OpenFl Equivalent For `FileSystem.readDirectory`
@@ -105,12 +115,14 @@ class Paths {
 	 * @return Array<String>
 	 */
 	public static function readAssetsDirectoryFromLibrary(path:String, ?type:String, ?suffix:String = "", ?removePath:Bool = false,
-			?library:String = "default"):Array<String> {
+			?library:String = "default"):Array<String>
+	{
 		final lib = OpenFLAssets.getLibrary(library ?? 'default');
 		final list:Array<String> = lib.list(type);
 		path = 'assets/$path';
 		var stringList:Array<String> = [];
-		for (hmm in list) {
+		for (hmm in list)
+		{
 			if (!hmm.startsWith(path) || !hmm.endsWith(suffix))
 				continue;
 			var bruh:String = null;
@@ -125,13 +137,15 @@ class Paths {
 	}
 }
 
-enum abstract SoundExtension(String) {
+enum abstract SoundExtension(String)
+{
 	var WAV = "wav";
 	var OGG = "ogg";
 	var MP3 = "mp3";
 }
 
-enum abstract FontExtension(String) {
+enum abstract FontExtension(String)
+{
 	var TTF = "ttf";
 	var OTF = "otf";
 	var WOFF = "woff";

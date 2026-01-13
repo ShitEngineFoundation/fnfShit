@@ -22,7 +22,7 @@ class Main extends Sprite
 		super();
 		FlxG.signals.preStateSwitch.add(Conductor.clear);
 
-		addChild(new FlxGame(1280, 720, InitState, 120,120, true));
+		addChild(new FlxGame(1280, 720, InitState, 240,240, true));
 		Lib.current.stage.scaleMode = StageScaleMode.NO_SCALE;
 		registerAsDPICompatible();
 		setFlxDefines();

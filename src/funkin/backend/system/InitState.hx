@@ -15,6 +15,11 @@ class InitState extends FlxTransitionableState
 		super.create();
 		SaveData.init();
 		JudgementHandler.judgements.reverse();
+		
+		#if modchart 
+		modchart.backend.standalone.Adapter.instance = new modchartin.AdapterShit(); 
+		modchart.Config.OPTIMIZE_HOLDS = modchart.Config.PREVENT_SCALED_HOLD_END = true;
+		#end
 
 		controls = new funkin.backend.system.Controls("FNFControls");
 		FlxG.inputs.addInput(controls);
