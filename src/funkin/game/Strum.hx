@@ -39,8 +39,7 @@ class Strum extends FunkinSprite
 	{
 		super.playAnim(animName, force, reversed, frame);
 		centerOffsets();
-		if(animName == "confirm")
-			offset.subtract(13,13);
+		centerOrigin();
 	}
 
 	override function update(dt:Float)

@@ -1,5 +1,6 @@
 package funkin.menus.charter;
 
+import funkin.game.Strum;
 import funkin.game.Song;
 import funkin.game.GameplayState;
 import funkin.game.HealthIcon;
@@ -73,6 +74,7 @@ class ChartingState extends FlxUIState
 
 	var leftIcon:HealthIcon;
 	var rightIcon:HealthIcon;
+	var strums:Array<Strum> = [];
 
 	override function create()
 	{
@@ -113,7 +115,6 @@ class ChartingState extends FlxUIState
 				player1: 'bf',
 				player2: 'dad',
 				speed: 1,
-				validScore: false,
 				gfVersion: "gf"
 			};
 		}
@@ -140,6 +141,22 @@ class ChartingState extends FlxUIState
 		strumLine = new FlxSprite(0, 50).makeGraphic(Std.int(FlxG.width / 2), 4);
 		add(strumLine);
 
+		for (i in 0...8)
+		{
+			var strum:Strum = new Strum(i % 4);
+			strum.x = GRID_SIZE * i;
+			strum.setGraphicSize(GRID_SIZE, GRID_SIZE);
+			strum.updateHitbox();
+			strum.resetAnim = 0.01;
+			strums.push(strum);
+			add(strum);
+		}
+		FlxG.signals.preStateSwitch.addOnce(() ->
+		{
+			strums.resize(0);
+			strums = null;
+		});
+
 		dummyArrow = new FlxSprite().makeGraphic(GRID_SIZE, GRID_SIZE);
 		add(dummyArrow);
 
@@ -162,7 +179,7 @@ class ChartingState extends FlxUIState
 
 		add(curRenderedNotes);
 		add(curRenderedSustains);
-
+		changeSection(0);
 		super.create();
 	}
 
@@ -433,7 +450,7 @@ class ChartingState extends FlxUIState
 			}
 		}
 
-		// FlxG.log.add(id + " WEED " + sender + " WEED " + data + " WEED " + params);
+		FlxG.log.add(id + " WEED " + sender + " WEED " + data + " WEED " + params);
 	}
 
 	var updatedSection:Bool = false;
@@ -469,6 +486,8 @@ class ChartingState extends FlxUIState
 		_song.song = typingShit.text;
 
 		strumLine.y = getYfromStrum((Conductor.songPosition - sectionStartTime()) % (Conductor.stepLength * 16));
+		for (strumID in 0...strums.length)
+			strums[strumID].y = strumLine.y;
 
 		if (curBeat % 4 == 0 && curStep >= 16 * (curSection + 1))
 		{
@@ -523,7 +542,7 @@ class ChartingState extends FlxUIState
 		if (FlxG.mouse.x > gridBG.x
 			&& FlxG.mouse.x < gridBG.x + gridBG.width
 			&& FlxG.mouse.y > gridBG.y
-			&& FlxG.mouse.y < gridBG.y + (GRID_SIZE *16))
+			&& FlxG.mouse.y < gridBG.y + (GRID_SIZE * 16))
 		{
 			dummyArrow.x = Math.floor(FlxG.mouse.x / GRID_SIZE) * GRID_SIZE;
 			if (FlxG.keys.pressed.SHIFT)
@@ -532,6 +551,22 @@ class ChartingState extends FlxUIState
 				dummyArrow.y = Math.floor(FlxG.mouse.y / GRID_SIZE) * GRID_SIZE;
 		}
 
+		if (FlxG.sound.music.playing)
+		{
+			curRenderedNotes.forEachAlive((n:Note) ->
+			{
+				if (!n.isOnScreen())
+					return;
+				if (n.time <= Conductor.songPosition && !n.hit)
+				{
+					n.hit = true;
+					var strum = strums[n.lane];
+					strum.playAnim("confirm", true);
+
+					strum.resetAnim = Math.max(0.15, n.sustainLength / 1000);
+				}
+			});
+		}
 		if (FlxG.keys.justPressed.ENTER)
 		{
 			lastSection = curSection;
@@ -571,6 +606,8 @@ class ChartingState extends FlxUIState
 		{
 			if (FlxG.keys.justPressed.SPACE)
 			{
+				for (n in curRenderedNotes)
+					n.hit = false;
 				if (FlxG.sound.music.playing)
 				{
 					FlxG.sound.music.pause();
@@ -834,20 +871,33 @@ class ChartingState extends FlxUIState
 			var daStrumTime = i[0];
 			var daSus = i[2];
 
-			var note:Note = new Note(daNoteInfo % 4,daStrumTime);
+			var note:Note = new Note(daNoteInfo % 4, daStrumTime);
 			note.sustainLength = daSus;
 			note.setGraphicSize(GRID_SIZE, GRID_SIZE);
 			note.updateHitbox();
 			note.x = Math.floor(daNoteInfo * GRID_SIZE);
-			note.y = Math.floor(getYfromStrum((daStrumTime - sectionStartTime()) % (Conductor.stepLength *16)));
+			note.y = Math.floor(getYfromStrum((daStrumTime - sectionStartTime()) % (Conductor.stepLength * 16)));
 
 			curRenderedNotes.add(note);
 
 			if (daSus > 0)
 			{
-				var sustainVis:FlxSprite = new FlxSprite(note.x + (GRID_SIZE / 2 - 4),
-					note.y + GRID_SIZE / 2).makeGraphic(8, Math.floor(FlxMath.remapToRange(daSus, 0, Conductor.stepLength * 16, 0, gridBG.height)));
-				curRenderedSustains.add(sustainVis);
+				var susHeight:Float = Math.floor(FlxMath.remapToRange(daSus, 0, Conductor.stepLength * 16, 0, gridBG.height));
+				var sustainMiddle:Note = new Note(note.lane, daStrumTime, false, true,0,note);
+				sustainMiddle.setPosition(note.x + (note.width * 0.5 - 4), note.y + note.height / 2);
+				sustainMiddle.setGraphicSize(8, susHeight);
+				sustainMiddle.updateHitbox();
+				curRenderedSustains.add(sustainMiddle);
+
+		
+				var cap:Note = new Note(note.lane, daStrumTime, false, true,0,sustainMiddle);
+				cap.setPosition(note.x + (note.width * 0.5 - 4), note.y + susHeight + (GRID_SIZE / 2));
+				cap.setGraphicSize(8, GRID_SIZE / 2);
+				cap.updateHitbox();
+				curRenderedSustains.add(cap);
+
+				sustainMiddle.setGraphicSize(8, susHeight);
+				sustainMiddle.updateHitbox();
 			}
 		}
 	}

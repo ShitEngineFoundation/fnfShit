@@ -1,5 +1,6 @@
 package funkin.game;
 
+import funkin.game.stages.*;
 #if modchart import modchart.Manager; #end
 import funkin.game.stage.Character;
 import funkin.game.judgement.Judgement;
@@ -46,6 +47,7 @@ class GameplayState extends FlxTransitionableState
 	public var bf:Character;
 
 	#if modchart public var funkin_modchart_instance:Manager; #end
+	public var curStage:String;
 
 	public function new()
 	{
@@ -77,14 +79,35 @@ class GameplayState extends FlxTransitionableState
 
 		// set up stuff
 		persistentDraw = persistentUpdate = true;
-		FlxG.cameras.reset(new FlxZoomCamera(0, 0, FlxG.width, FlxG.height, 1));
+		FlxG.cameras.reset(camGame = new FlxZoomCamera(0, 0, FlxG.width, FlxG.height, 1));
 
 		songSpeed = SONG.speed;
 		bgColor = FlxColor.GRAY;
 		Conductor.mapBPMChanges(SONG);
 		Conductor.BPM = SONG.bpm;
 		Conductor.songPosition = -Conductor.stepLength * 5;
+
 		super.create();
+
+		var stageCheck = SONG.stage ?? getDefaultStageCheck(SONG.song);
+		curStage = stageCheck;
+
+		switch (stageCheck)
+		{
+			case 'spooky':
+				currentStage = new Week2();
+			case 'philly':
+				currentStage = new Week3();
+
+			default:
+				camGame.targetZoom = 0.9;
+
+				currentStage = new Week1();
+		}
+
+		currentStage?.create();
+		if (currentStage != null)
+			add(currentStage);
 
 		add(gf);
 		add(dad);
@@ -129,7 +152,6 @@ class GameplayState extends FlxTransitionableState
 		notes = new NoteGroup();
 		hudElements.add(notes);
 
-	
 		healthBarBG = new FlxSprite(0, FlxG.height * 0.89).loadGraphic(Paths.getGraphic('healthBar'));
 		healthBarBG.screenCenter(X);
 
@@ -191,6 +213,8 @@ class GameplayState extends FlxTransitionableState
 		}
 	}
 
+	public var camGame:FlxZoomCamera;
+
 	public function beatHit(beat:Int)
 	{
 		notes.sort(sortNotesByTimeHelper, FlxSort.DESCENDING);
@@ -214,6 +238,8 @@ class GameplayState extends FlxTransitionableState
 			moveCameraToCharacter(char);
 		}
 	}
+
+	public var currentStage:BaseStage;
 
 	function generateNotes()
 	{
@@ -245,7 +271,7 @@ class GameplayState extends FlxTransitionableState
 				{
 					for (segmentID in 0...Math.floor(holdLength / stepLength))
 					{
-						final extra:Float = (stepLength * segmentID) + (Conductor.stepLength / songSpeed);
+						final extra:Float = (stepLength * segmentID) + 20;
 						var sustain:Note = new Note(lane, note.time + extra, mustHitNote, true, stepLength, unspawnNotes[unspawnNotes.length - 1],
 							strum.lastSkinName);
 						sustain.setPosition(-sustain.width * 2, -sustain.height * 2);
@@ -562,5 +588,33 @@ class GameplayState extends FlxTransitionableState
 	public function getStrumline(player:Int)
 	{
 		return player == 0 ? opponentStrums : playerStrums;
+	}
+
+	public function getDefaultStageCheck(song):String
+	{
+		song = song.toLowerCase();
+
+		switch (song)
+		{
+			case 'spookeez' | 'monster' | 'south':
+				return "spooky";
+			case 'pico' | 'blammed' | 'philly':
+				return 'philly';
+			case "milf" | 'satin-panties' | 'high':
+				return 'limo';
+			case "cocoa" | 'eggnog':
+				return 'mall';
+			case 'winter-horrorland':
+				return 'mallEvil';
+			case 'senpai' | 'roses':
+				return 'school';
+			case 'thorns':
+				return 'schoolEvil';
+			case 'guns' | 'stress' | 'ugh':
+				return 'tank';
+			default:
+				return 'stage';
+		}
+		return 'stage';
 	}
 }

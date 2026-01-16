@@ -62,6 +62,7 @@ class Note extends FunkinSprite
 				prevNote.playAnim("segment");
 				prevNote.updateHitbox();
 			}
+			eHM = 0;
 		}
 
 		antialiasing = tempSkin.antialiasing;
@@ -91,8 +92,8 @@ class Note extends FunkinSprite
 		tX += (strum.width * 0.5 - width * 0.5);
 
 		var tY = strum.y + Math.sin(shit) * distanceMS;
-		//	if (isSustainNote)
-		//		tY += strum.height / 2;
+		if (isSustainNote)
+			tY += strum.height / 2;
 		if (x != tX)
 			x = tX;
 		if (y != tY)
@@ -103,7 +104,10 @@ class Note extends FunkinSprite
 		if (isSustainNote)
 		{
 			if (!animation.name.contains('cap'))
+			{
 				scale.y = (0.45 * sustainLength * speed) / frameHeight;
+				scale.y += 0.45 / frameHeight;
+			}
 			updateHitbox();
 
 			centerOffsets();
@@ -143,9 +147,12 @@ class Note extends FunkinSprite
 		}
 	}
 
+	public var eHM:Float = 0.5;
+	public var lHM:Float = 1;
+
 	function get_canBeHit():Bool
 	{
-		return (time <= Conductor.songPosition + Conductor.safeZoneOffset * 0.5
-			&& !(time <= Conductor.songPosition - Conductor.safeZoneOffset * 1));
+		return (time <= Conductor.songPosition + Conductor.safeZoneOffset * eHM
+			&& !(time <= Conductor.songPosition - Conductor.safeZoneOffset * lHM));
 	}
 }

@@ -17,7 +17,7 @@ typedef SwagSong =
 	var player1:String;
 	var player2:String;
 	var gfVersion:String;
-	var validScore:Bool;
+	@:optional var stage:String;
 }
 
 typedef SwagSection =
@@ -68,6 +68,7 @@ class Song
 	public static function parseJSONshit(rawJson:String):SwagSong
 	{
 		var swagShit:SwagSong = cast Json.parse(rawJson).song;
+		swagShit.stage ??= 'stage';
 		return swagShit;
 	}
 }
