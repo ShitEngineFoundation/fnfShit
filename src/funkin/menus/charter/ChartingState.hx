@@ -744,8 +744,6 @@ class ChartingState extends FlxUIState
 
 	function changeSection(sec:Int = 0, ?updateMusic:Bool = true):Void
 	{
-		trace('changing section' + sec);
-
 		if (_song.notes[sec] != null)
 		{
 			curSection = sec;
@@ -883,14 +881,13 @@ class ChartingState extends FlxUIState
 			if (daSus > 0)
 			{
 				var susHeight:Float = Math.floor(FlxMath.remapToRange(daSus, 0, Conductor.stepLength * 16, 0, gridBG.height));
-				var sustainMiddle:Note = new Note(note.lane, daStrumTime, false, true,0,note);
+				var sustainMiddle:Note = new Note(note.lane, daStrumTime, false, true, 0, note);
 				sustainMiddle.setPosition(note.x + (note.width * 0.5 - 4), note.y + note.height / 2);
 				sustainMiddle.setGraphicSize(8, susHeight);
 				sustainMiddle.updateHitbox();
 				curRenderedSustains.add(sustainMiddle);
 
-		
-				var cap:Note = new Note(note.lane, daStrumTime, false, true,0,sustainMiddle);
+				var cap:Note = new Note(note.lane, daStrumTime, false, true, 0, sustainMiddle);
 				cap.setPosition(note.x + (note.width * 0.5 - 4), note.y + susHeight + (GRID_SIZE / 2));
 				cap.setGraphicSize(8, GRID_SIZE / 2);
 				cap.updateHitbox();

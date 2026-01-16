@@ -136,7 +136,8 @@ class Character extends FlxAnimate
 	public function hitNote(note:Note)
 	{
 		playAnim(sing[note.lane % sing.length], true);
-		holdTimer = (Conductor.stepLength * json.time) / 1000;
+		if (animExists(sing[note.lane % sing.length]))
+			holdTimer = (Conductor.stepLength * json.time) / 1000;
 	}
 
 	public function dance(beat:Int = 0)

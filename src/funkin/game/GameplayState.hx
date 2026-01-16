@@ -382,6 +382,7 @@ class GameplayState extends FlxTransitionableState
 				strum.resetAnim = 0.15;
 				note.hit = true;
 				dad.hitNote(note);
+				noteCamMovement(note);
 
 				if (!note.isSustainNote)
 					killNote(note);
@@ -514,7 +515,10 @@ class GameplayState extends FlxTransitionableState
 
 		health += healthGain;
 		if (!Judgement.misses)
+		{
 			score += Judgement.score;
+			noteCamMovement(daN);
+		}
 		else
 		{
 			health -= healthGain;
@@ -527,6 +531,7 @@ class GameplayState extends FlxTransitionableState
 		}
 		else
 			combo++;
+
 		if (!daN.isSustainNote)
 			killNote(daN);
 	}
@@ -543,6 +548,31 @@ class GameplayState extends FlxTransitionableState
 		health -= 0.04;
 		score -= 150;
 		misses++;
+	}
+
+	public function noteCamMovement(n:Note, ?force:Bool = false)
+	{
+		if (!SaveData.currentSettings.noteCamMovement && !force)
+			return;
+		var xOffset:Float = 0;
+		var yOffset:Float = 0;
+
+		switch (n.lane)
+		{
+			case 0: // left
+				xOffset = -noteCamMovementAmountX;
+
+			case 1: // down
+				yOffset = noteCamMovementAmountY;
+
+			case 2: // up
+				yOffset = -noteCamMovementAmountY;
+
+			case 3: // right
+				xOffset = noteCamMovementAmountX;
+		}
+
+		FlxG.camera.targetOffset.set(xOffset, yOffset);
 	}
 
 	function missNote(note:Note)
@@ -589,6 +619,9 @@ class GameplayState extends FlxTransitionableState
 	{
 		return player == 0 ? opponentStrums : playerStrums;
 	}
+
+	public var noteCamMovementAmountX:Float = 20;
+	public var noteCamMovementAmountY:Float = 20;
 
 	public function getDefaultStageCheck(song):String
 	{

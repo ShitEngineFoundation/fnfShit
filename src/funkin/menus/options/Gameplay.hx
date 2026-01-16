@@ -9,5 +9,6 @@ class Gameplay extends BaseOptionCat
 		super.create();
 		addOption("Downscroll", new Option("downScroll", BOOL));
         addOption("Middlescroll", new Option("middleScroll", BOOL));
+		addOption("Note Camera Movement", new Option("noteCamMovement", BOOL));
 	}
 }

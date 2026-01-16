@@ -7,6 +7,7 @@ class OptionSaveData
 {
 	public var downScroll:Bool = false;
 	public var middleScroll:Bool = false;
+	public var noteCamMovement:Bool = true;
 }
 
 class SaveData

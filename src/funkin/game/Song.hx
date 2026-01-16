@@ -50,7 +50,7 @@ class Song
 		this.bpm = bpm;
 	}
 
-	public static function loadFromJson(song:String = "random", ?diff:String = "hard"):SwagSong
+	public static function loadFromJson(song:String = "Tutorial", ?diff:String = "hard"):SwagSong
 	{
 		var rawJson;
 
