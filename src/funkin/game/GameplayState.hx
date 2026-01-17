@@ -712,7 +712,19 @@ class GameplayState extends FlxTransitionableState
 
 	public function makeScriptFromPath(path:String)
 	{
+		if (!OpenFLAssets.exists(path))
+			return;
 		var script:GameplayScriptHSRIPT = new GameplayScriptHSRIPT(path);
 		scripts.push(script);
+	}
+
+	// doesnt need assets prefix
+	public function makeScriptsFromPath(path:String)
+	{
+		for (path in Paths.readAssetsDirectoryFromLibrary(path, 'TEXT', '.hx'))
+		{
+			var script:GameplayScriptHSRIPT = makeScriptFromPath(path);
+			scripts.push(script);
+		}
 	}
 }
