@@ -22,9 +22,9 @@ class HealthIcon extends FunkinSprite
 			loadGraphic(Paths.getGraphic("icons/icon-" + char), true, Math.floor(width / 2), Math.floor(height));
 
 			animation.add(char, [0, 1], 0);
-            antialiasing = true;
 		}
 		animation.play(char);
+		visible = !SaveData.currentSettings.hideIcons && !SaveData.currentSettings.hideUI;
 	}
 
 	public var baseScale:Float = 1;
@@ -35,6 +35,6 @@ class HealthIcon extends FunkinSprite
 		updateHitbox();
 
 		FlxTween.cancelTweensOf(scale);
-		FlxTween.tween(scale, {x: baseScale, y: baseScale}, 0.3);
+		FlxTween.tween(scale, {x: baseScale, y: baseScale}, 0.2);
 	}
 }

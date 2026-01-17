@@ -235,7 +235,8 @@ class ChartingState extends FlxUIState
 		stepperBPM.name = 'song_bpm';
 
 		var characters:Array<String> = ['dad', 'gf', 'bf'];
-
+		var stages:Array<String> = ['stage', 'spooky', 'philly'];
+		
 		var player1DropDown = new FlxUIDropDownMenu(10, 100, FlxUIDropDownMenu.makeStrIdLabelArray(characters, true), function(character:String)
 		{
 			_song.player1 = characters[Std.parseInt(character)];
@@ -247,7 +248,12 @@ class ChartingState extends FlxUIState
 			_song.player2 = characters[Std.parseInt(character)];
 		});
 
-		player2DropDown.selectedLabel = _song.player2;
+		var stageDropDown = new FlxUIDropDownMenu(10, 140, FlxUIDropDownMenu.makeStrIdLabelArray(stages, true), function(stage:String)
+		{
+			_song.stage = stages[Std.parseInt(stage)];
+		});
+
+		player2DropDown.selectedLabel = _song.stage ?? 'stage';
 
 		var tab_group_song = new FlxUI(null, UI_box);
 		tab_group_song.name = "Song";
@@ -263,6 +269,7 @@ class ChartingState extends FlxUIState
 		tab_group_song.add(stepperSpeed);
 		tab_group_song.add(player1DropDown);
 		tab_group_song.add(player2DropDown);
+		tab_group_song.add(stageDropDown);
 
 		UI_box.addGroup(tab_group_song);
 		UI_box.scrollFactor.set();

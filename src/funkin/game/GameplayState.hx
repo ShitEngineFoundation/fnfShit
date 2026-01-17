@@ -1,5 +1,7 @@
 package funkin.game;
 
+import funkin.scripting.GameplayScriptHSRIPT;
+import haxe.Json;
 import funkin.game.stages.*;
 #if modchart import modchart.Manager; #end
 import funkin.game.stage.Character;
@@ -12,6 +14,14 @@ import flixel.util.FlxSort;
 
 typedef StrumLineGroup = FlxTypedSpriteGroup<Strum>;
 typedef NoteGroup = FlxTypedGroup<Note>;
+
+typedef StageJSON =
+{
+	var zoom:Float;
+	var bf:Array<Int>;
+	var gf:Array<Int>;
+	var dad:Array<Int>;
+}
 
 class GameplayState extends FlxTransitionableState
 {
@@ -48,11 +58,15 @@ class GameplayState extends FlxTransitionableState
 
 	#if modchart public var funkin_modchart_instance:Manager; #end
 	public var curStage:String;
+	public var stageJSON:StageJSON;
+
+	public var scripts:Array<GameplayScriptHSRIPT> = [];
 
 	public function new()
 	{
 		super();
 		self = this;
+		Paths.getSparrowAtlas("noteSplashes");
 
 		hudElements = new FlxGroup();
 		FlxG.sound.music.stop();
@@ -65,11 +79,31 @@ class GameplayState extends FlxTransitionableState
 		if (gf.curCharacter == dad.curCharacter)
 			gf.visible = false;
 
+		curStage = SONG.stage ?? getDefaultStageCheck(SONG.song);
+		var s = Paths.getPath("data/stages/" + curStage) + '.json';
+		if (!OpenFLAssets.exists(s))
+			curStage = 'stage';
+		s = Paths.getPath("data/stages/" + curStage) + '.json';
+		stageJSON = cast Json.parse(OpenFLAssets.getText(s));
+
+		// dad
+		DAD_X = stageJSON.dad[0];
+		DAD_Y = stageJSON.dad[1];
+
+		// gf
+		GF_X = stageJSON.gf[0];
+		GF_Y = stageJSON.gf[1];
+
+		// gf
+		BF_X = stageJSON.bf[0];
+		BF_Y = stageJSON.bf[1];
+
 		#if modchart funkin_modchart_instance = new Manager(); #end
 	}
 
 	public var iconP1:HealthIcon;
 	public var iconP2:HealthIcon;
+	public var nSplashes:FlxTypedGroup<NoteSplash>;
 
 	override public function create()
 	{
@@ -131,6 +165,7 @@ class GameplayState extends FlxTransitionableState
 		for (camera in FlxG.cameras.list)
 			if (camera is FlxZoomCamera)
 				cast(camera, FlxZoomCamera).zoomSpeed = 12.5;
+		camGame.targetZoom = camGame.zoom = stageJSON.zoom;
 
 		hudElements.cameras = [camHUD];
 		add(hudElements);
@@ -138,7 +173,7 @@ class GameplayState extends FlxTransitionableState
 		// make them grey arrows appear
 		opponentStrums = new StrumLineGroup(50, SaveData.currentSettings.downScroll ? FlxG.height - 150 : 50);
 		generateStaticArrows(opponentStrums);
-		opponentStrums.alpha = SaveData.currentSettings.middleScroll ? 0 : 1;
+		opponentStrums.alpha = SaveData.currentSettings.middleScroll || !SaveData.currentSettings.opponentNotes ? 0 : 1;
 		hudElements.add(opponentStrums);
 
 		playerStrums = new StrumLineGroup(50 + FlxG.width / 2, opponentStrums.y);
@@ -146,6 +181,8 @@ class GameplayState extends FlxTransitionableState
 		if (SaveData.currentSettings.middleScroll)
 			playerStrums.screenCenter(X);
 		hudElements.add(playerStrums);
+		nSplashes = new FlxTypedGroup<NoteSplash>();
+		hudElements.add(nSplashes);
 
 		#if modchart hudElements.add(funkin_modchart_instance); #end
 
@@ -172,13 +209,15 @@ class GameplayState extends FlxTransitionableState
 		comboGroup = new FlxTypedSpriteGroup<Alphabet>();
 		add(comboGroup);
 
-		scoreTxt = new FlxText(0, 0, "Score: 0 // Misses: 0");
-		scoreTxt.setFormat(Paths.getFont("vcr"), 15, FlxColor.WHITE, null, OUTLINE, FlxColor.BLACK);
+		scoreTxt = new FlxText(0, 0, 0, '');
+		scoreTxt.setFormat(Paths.getFont("vcr"), 22, FlxColor.WHITE, null, OUTLINE, FlxColor.BLACK);
 		scoreTxt.borderSize = 1;
 		scoreTxt.antialiasing = true;
 		scoreTxt.screenCenter(X);
 		scoreTxt.y = healthBar.y + 20;
 		hudElements.add(scoreTxt);
+
+		healthBarBG.visible = healthBar.visible = healthBarBG.visible = scoreTxt.visible = !SaveData.currentSettings.hideUI;
 
 		generateNotes();
 		Conductor.onBeat.add((b) ->
@@ -211,6 +250,8 @@ class GameplayState extends FlxTransitionableState
 			if (Math.abs(voices.time - Conductor.songPosition) > 10)
 				voices.time = Conductor.songPosition;
 		}
+
+		currentStage?.stepHit(step);
 	}
 
 	public var camGame:FlxZoomCamera;
@@ -224,19 +265,23 @@ class GameplayState extends FlxTransitionableState
 		gf.dance(beat);
 		dad.dance(beat);
 		bf.dance(beat);
+
+		currentStage?.beatHit(beat);
 	}
 
-	public function sectionHit(section:Int)
+	public function sectionHit(sectionCount:Int)
 	{
 		camHUD.zoom += 0.03;
 		FlxG.camera.zoom += 0.015;
 
-		var section = SONG.notes[section];
+		var section = SONG.notes[sectionCount];
 		if (section != null)
 		{
 			var char = section.mustHitSection ? bf : dad;
 			moveCameraToCharacter(char);
 		}
+
+		currentStage?.sectionHit(sectionCount);
 	}
 
 	public var currentStage:BaseStage;
@@ -384,6 +429,8 @@ class GameplayState extends FlxTransitionableState
 				dad.hitNote(note);
 				noteCamMovement(note);
 
+				if (SaveData.currentSettings.opponentNoteSplashes)
+					spawnSplash(note);
 				if (!note.isSustainNote)
 					killNote(note);
 			}
@@ -406,7 +453,7 @@ class GameplayState extends FlxTransitionableState
 			pause();
 		}
 		scoreTxt.screenCenter(X);
-		scoreTxt.text = "Score: " + score + ' // Misses: $misses';
+		scoreTxt.text = "Score: " + score + ' | Misses: $misses';
 
 		if (FlxG.keys.justPressed.SEVEN)
 			FlxG.switchState(new funkin.menus.charter.ChartingState());
@@ -531,6 +578,8 @@ class GameplayState extends FlxTransitionableState
 		}
 		else
 			combo++;
+		if (Judgement.splashes)
+			spawnSplash(daN);
 
 		if (!daN.isSustainNote)
 			killNote(daN);
@@ -649,5 +698,21 @@ class GameplayState extends FlxTransitionableState
 				return 'stage';
 		}
 		return 'stage';
+	}
+
+	public function spawnSplash(n:Note)
+	{
+		if (!SaveData.currentSettings.noteSplashes || n.isSustainNote)
+			return;
+		var strumline = getStrumline(n.mustPress ? 1 : 0);
+		var strum = strumline.members[n.lane % strumline.length];
+		var splash = nSplashes.recycle(NoteSplash);
+		splash.setupNoteSplash(strum.x, strum.y, n.lane);
+	}
+
+	public function makeScriptFromPath(path:String)
+	{
+		var script:GameplayScriptHSRIPT = new GameplayScriptHSRIPT(path);
+		scripts.push(script);
 	}
 }

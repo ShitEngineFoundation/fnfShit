@@ -4,10 +4,10 @@ import funkin.game.GameplayState;
 
 class OptionsState extends FlxTransitionableState
 {
-	var categories = ['gameplay', 'visuals'];
-	var curSelected:FlxText;
+	var categories = ['gameplay', 'visuals and ui'];
+	var curSelected:Alphabet;
 	var itemIndex:Int = 0;
-	var itemGroup:FlxTypedGroup<FlxText> = new FlxTypedGroup<FlxText>();
+	var itemGroup:FlxTypedGroup<Alphabet> = new FlxTypedGroup<Alphabet>();
 
 	override function create()
 	{
@@ -19,12 +19,9 @@ class OptionsState extends FlxTransitionableState
 
 		for (catName in categories)
 		{
-			var text:FlxText = new FlxText(0, 100, 0, catName, 20);
+			var text:Alphabet = new Alphabet(0, 0, catName, true);
 			text.screenCenter(X);
 			text.y += (100 * itemGroup.length);
-			text.borderSize = 2;
-			text.borderQuality = 2;
-			text.borderStyle = OUTLINE;
 			text.antialiasing = true;
 			itemGroup.add(text);
 		}
@@ -55,14 +52,18 @@ class OptionsState extends FlxTransitionableState
 			changeSelected(1);
 		else if (controls.justPressed.NOTE_UP)
 			changeSelected(-1);
-		else if(controls.justPressed.UI_BACK)
+		else if (controls.justPressed.UI_BACK)
 			FlxG.switchState(new MainMenuState());
-        else if(controls.justPressed.UI_ACCEPT) {
-            FlxG.sound.play(Paths.getSound("sounds/confirmMenu"));
-            switch(categories[itemIndex]) {
-                case "gameplay":
-                    FlxG.switchState(new funkin.menus.options.Gameplay());
-            }
-        }
+		else if (controls.justPressed.UI_ACCEPT)
+		{
+			FlxG.sound.play(Paths.getSound("sounds/confirmMenu"));
+			switch (categories[itemIndex])
+			{
+				case "gameplay":
+					FlxG.switchState(new funkin.menus.options.Gameplay());
+				case "visuals and ui":
+					FlxG.switchState(new funkin.menus.options.UI_and_Looks());
+			}
+		}
 	}
 }

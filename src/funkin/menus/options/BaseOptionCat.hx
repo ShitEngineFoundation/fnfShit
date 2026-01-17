@@ -1,6 +1,5 @@
 package funkin.menus.options;
 
-
 import funkin.menus.options.optionobjs.OptionCheckbox;
 import flixel.addons.display.FlxBackdrop;
 import flixel.addons.plugin.taskManager.FlxTask;
@@ -42,10 +41,9 @@ class BaseOptionCat extends FlxTransitionableState
 
 		option.intenName = opName;
 
-		var optionName:Alphabet = new Alphabet(0,0,option.intenName,true,false);
+		var optionName:Alphabet = new Alphabet(0, 0, option.intenName, true, false);
 		option.add(optionName);
 
-	
 		optionsGroup.add(option);
 		option.displayText = optionName;
 		option.setPosition(0, 120 * optionsGroup.length);
@@ -60,6 +58,7 @@ class BaseOptionCat extends FlxTransitionableState
 			default:
 				trace("type " + option.type.getName() + " has no display thing yet");
 		}
+		return option;
 	}
 
 	var canMoveBack = true;
@@ -96,8 +95,7 @@ class BaseOptionCat extends FlxTransitionableState
 		optionsGroup.forEachAlive((o) ->
 		{
 			o.alpha = o == curSelected ? 1 : 0.5;
-		
-	
+
 			o.selected = o == curSelected;
 		});
 	}

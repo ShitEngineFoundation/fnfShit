@@ -4,7 +4,6 @@ import funkin.game.judgement.JudgementHandler;
 import funkin.game.NoteSkin;
 import funkin.options.SaveData;
 import flixel.addons.transition.FlxTransitionSprite.GraphicTransTileCircle;
-import flixel.addons.transition.FlxTransitionSprite.GraphicTransTileDiamond;
 import flixel.math.FlxRect;
 import flixel.math.FlxPoint;
 
@@ -15,9 +14,10 @@ class InitState extends FlxTransitionableState
 		super.create();
 		SaveData.init();
 		JudgementHandler.judgements.reverse();
-		
-		#if modchart 
-		modchart.backend.standalone.Adapter.instance = new modchartin.AdapterShit(); 
+		FlxSprite.defaultAntialiasing = SaveData.currentSettings.antialias;
+
+		#if modchart
+		modchart.backend.standalone.Adapter.instance = new modchartin.AdapterShit();
 		modchart.Config.OPTIMIZE_HOLDS = modchart.Config.PREVENT_SCALED_HOLD_END = true;
 		#end
 

@@ -53,7 +53,7 @@ class Note extends FunkinSprite
 
 		if (prevNote != null && isSustainNote)
 		{
-			multAlpha = alpha = 0.6;
+			multAlpha = alpha = !SaveData.currentSettings.opaqueHolds ? 0.6 : 1;
 			playAnim("cap");
 			updateHitbox();
 

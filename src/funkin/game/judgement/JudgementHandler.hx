@@ -23,6 +23,6 @@ class JudgementHandler
 			if (noteDiff > J.ms)
 				return J;
 		}
-		return judgements[0]; // default to shit
+		return judgements[judgements.length - 1]; 
 	}
 }

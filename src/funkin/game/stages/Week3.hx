@@ -162,17 +162,19 @@ class BuildingShaders
 	public function new():Void
 	{
 		shader = new BuildingShader();
+		#if !flash
 		shader.alphaShit.value = [0];
+		#end
 	}
 
 	public function update(elapsed:Float):Void
 	{
-		shader.alphaShit.value[0] += elapsed;
+		#if !flash shader.alphaShit.value[0] += elapsed; #end
 	}
 
 	public function reset()
 	{
-		shader.alphaShit.value[0] = 0;
+		#if !flash shader.alphaShit.value[0] = 0; #end
 	}
 }
 

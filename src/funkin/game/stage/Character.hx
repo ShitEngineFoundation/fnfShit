@@ -46,7 +46,7 @@ class Character extends FlxAnimate
 
 	public var curCharacter = "N/A";
 
-	public function new(x:Float = 0, y:Float = 0, char:String = "bf", player:Bool = false)
+	public function new(?x:Float = 0, ?y:Float = 0, char:String = "bf", player:Bool = false)
 	{
 		super(x, y);
 
@@ -81,6 +81,8 @@ class Character extends FlxAnimate
 
 		flipX = (json.flipX != player);
 		antialiasing = json.antialiasing;
+		if(!SaveData.currentSettings.antialias)
+			antialiasing = false;
 		scale.set(json.scale, json.scale);
 
 		var atlas = false;

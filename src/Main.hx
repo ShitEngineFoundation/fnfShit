@@ -44,6 +44,7 @@ class Main extends Sprite
 	#end
 	public static function registerAsDPICompatible() {}
 
+	#if !flash
 	// Get rid of hit test function because mouse memory ramp up during first move (-Bolo)
 	@:noCompletion override function __hitTest(x:Float, y:Float, shapeFlag:Bool, stack:Array<DisplayObject>, interactiveOnly:Bool, hitObject:DisplayObject):Bool
 		return false;
@@ -54,4 +55,5 @@ class Main extends Sprite
 
 	@:noCompletion override function __hitTestMask(x:Float, y:Float):Bool
 		return false;
+	#end
 }

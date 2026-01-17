@@ -5,9 +5,20 @@ import lime.app.Application;
 @:structInit
 class OptionSaveData
 {
+	// gameplay
+	public var antialias:Bool = false;
 	public var downScroll:Bool = false;
 	public var middleScroll:Bool = false;
 	public var noteCamMovement:Bool = true;
+	public var fps:Float = 64;
+
+	//UI and Looks
+	public var hideIcons:Bool = false;
+	public var hideUI:Bool = false;
+	public var opponentNotes:Bool = true;
+	public var opaqueHolds:Bool = false;
+	public var noteSplashes:Bool = true;
+	public var opponentNoteSplashes:Bool = false;
 }
 
 class SaveData
