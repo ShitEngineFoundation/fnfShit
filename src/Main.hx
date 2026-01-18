@@ -25,7 +25,7 @@ class Main extends Sprite
 
 		// FlxModding.reload(false);
 
-		addChild(new FlxGame(1280, 720, InitState, 64, 64, true));
+		addChild(new FlxGame(1280, 720, InitState, 100, 100, true));
 		addChild(new FPSCounter(10, 20));
 		Lib.current.stage.scaleMode = StageScaleMode.NO_SCALE;
 		registerAsDPICompatible();
