@@ -101,6 +101,8 @@ class MainMenuState extends FlxTransitionableState
 				FlxG.sound.play(Paths.getSound("sounds/cancelMenu"));
 			case "playstate":
 				FlxG.switchState(new GameplayState());
+			case "freeplay":
+				FlxG.switchState(new FreeplayState());
 			case "options":
 				FlxG.camera.fade();
 				FlxG.switchState(new OptionsState());

@@ -19,6 +19,7 @@ class OptionSaveData
 	public var opaqueHolds:Bool = false;
 	public var noteSplashes:Bool = true;
 	public var opponentNoteSplashes:Bool = false;
+	public var fpsCounter:Bool = true;
 }
 
 class SaveData

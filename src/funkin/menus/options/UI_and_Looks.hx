@@ -7,8 +7,9 @@ class UI_and_Looks extends BaseOptionCat
 	public override function create()
 	{
 		super.create();
+		addOption("FPS Counter", new Option("fpsCounter", BOOL));
 		addOption("Hide Icons", new Option("hideIcons", BOOL));
-    	addOption("Hide UI", new Option("hideUI", BOOL));
+		addOption("Hide UI", new Option("hideUI", BOOL));
 		addOption("Show Opponent Notes", new Option("opponentNotes", BOOL));
 		addOption("Opaque Holds", new Option("opaqueHolds", BOOL));
 		addOption("Note Splashes", new Option("noteSplashes", BOOL));

@@ -54,9 +54,10 @@ class Paths
 			return cachedSounds.get(path);
 
 		if (!OpenFLAssets.exists(path))
-			return null;
+			return getSound('sounds/beep', stream, OGG);
 
-		var sound:Sound = #if FLX_STREAM_SOUND stream ? FlxG.assets.streamSound(path) : #end FlxG.assets.getSound(path, false);
+		var sound:Sound = #if FLX_STREAM_SOUND stream ? FlxG.assets.streamSound(path) : #end
+		FlxG.assets.getSound(path, false);
 		cachedSounds.set(path, sound);
 		return sound;
 	}

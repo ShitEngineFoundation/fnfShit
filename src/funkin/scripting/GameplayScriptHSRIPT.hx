@@ -15,6 +15,7 @@ class GameplayScriptHSRIPT
 	public static var scriptImports:Map<String, Class<Dynamic>> = [
 		// shit
 		"Note" => Note,
+		"Conductor" => Conductor,
 		// =====================================================
 		// FLIXEL CORE
 		// =====================================================
@@ -66,6 +67,7 @@ class GameplayScriptHSRIPT
 		"FlxMath" => flixel.math.FlxMath,
 		"FlxRect" => flixel.math.FlxRect,
 		"FlxRandom" => flixel.math.FlxRandom,
+		"Math" => Math,
 		// =====================================================
 		// UTIL
 		// =====================================================
@@ -140,7 +142,6 @@ class GameplayScriptHSRIPT
 		// =====================================================
 		// HAXE CORE / STD
 		// =====================================================
-		"Math" => Math,
 		"Std" => Std,
 		"StringTools" => StringTools,
 		"Reflect" => Reflect,
@@ -169,11 +170,15 @@ class GameplayScriptHSRIPT
 
 		set('this', this);
 		set('state', FlxG.state);
+		set('mathabs', (v:Float) -> return Math.abs(v));
 
 		call('new');
 	}
 
-	public function set(vari:String, val:Dynamic) {}
+	public function set(vari:String, val:Dynamic)
+	{
+		interp.variables.set(vari, val);
+	}
 
 	public function get(vari:String):Dynamic
 	{

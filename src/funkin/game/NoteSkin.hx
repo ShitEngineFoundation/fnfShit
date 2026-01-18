@@ -26,7 +26,7 @@ class NoteSkin
 			return skins.get(name);
 
 		var skinD = Json.parse(OpenFLAssets.getText(skinPath));
-		skins.set(name, skinD);
+		//skins.set(name, skinD);
 		return skinD;
 	}
 }

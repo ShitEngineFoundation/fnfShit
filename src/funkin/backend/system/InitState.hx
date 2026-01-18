@@ -1,5 +1,6 @@
 package funkin.backend.system;
 
+import funkin.backend.mods.PolymodHandler;
 import funkin.game.judgement.JudgementHandler;
 import funkin.game.NoteSkin;
 import funkin.options.SaveData;
@@ -12,7 +13,9 @@ class InitState extends FlxTransitionableState
 	public override function create()
 	{
 		super.create();
+		PolymodHandler.init();
 		SaveData.init();
+
 		JudgementHandler.judgements.reverse();
 		FlxSprite.defaultAntialiasing = SaveData.currentSettings.antialias;
 
@@ -25,7 +28,7 @@ class InitState extends FlxTransitionableState
 		FlxG.inputs.addInput(controls);
 
 		// precache
-		NoteSkin.getSkin();
+		//NoteSkin.getSkin();
 		Paths.getSparrowAtlas("notes/NOTE_assets");
 
 		var dia = FlxGraphic.fromClass(GraphicTransTileCircle);

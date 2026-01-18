@@ -25,6 +25,7 @@
 	<set name="BUILD_DIR" value="export/32bit" if="32bits" />
 	<source path="src" />
 	<assets path="assets" />
+	<assets path="mods"/>
 
 	<!-- _______________________________ Libraries ______________________________ -->
 
@@ -33,6 +34,8 @@
 	<haxelib name="flixel-addons" />
 	<haxelib name="flixel-animate" />
 	<haxelib name="flixel-ui" />
+	<haxelib name="polymod" />
+
 	<section if="modchart">
 		<haxedef name="FM_ENGINE" value="ShitEngine" />
 		<haxedef name="FM_ENGINE_VERSION" value="0.1.0" />

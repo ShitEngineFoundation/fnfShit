@@ -21,6 +21,7 @@ class Note extends FunkinSprite
 	public var canBeHit(get, null):Bool;
 	public var ignoreNote(default, null):Bool = false;
 	public var parent(default, null):Note;
+	public var distance:Float = 0;
 
 	public function new(lane:Int = 0, time:Float = 0, mustPress:Bool = false, ?isSustainNote:Bool = false, ?sustainLength:Float = 0, ?prevNote:Note,
 			?skinName:String = "NOTE_assets")
@@ -88,6 +89,7 @@ class Note extends FunkinSprite
 		this.strum = strum;
 
 		var distanceMS:Float = (time - Conductor.songPosition) * (0.45 * lastScrollSpeed) * (strum.downScroll ? -1 : 1);
+		distance = distanceMS;
 		var tX = strum.x + Math.cos(shit) * distanceMS;
 		tX += (strum.width * 0.5 - width * 0.5);
 
@@ -133,6 +135,8 @@ class Note extends FunkinSprite
 		{
 			var swagRect = this.clipRect ?? new FlxRect(0, 0, frameWidth, frameHeight);
 			var center = strum.y + (160 * 0.7) * 0.5;
+			var swag = (160 * 0.7);
+			var y = (strum.y + swag / 2) + distance;
 			if (!strum.downScroll)
 			{
 				swagRect.y = (center - y) / scale.y;
@@ -143,7 +147,7 @@ class Note extends FunkinSprite
 				swagRect.height = (center - y) / scale.y;
 				swagRect.y = frameHeight - swagRect.height;
 			}
-			this.clipRect ??= swagRect;
+			this.clipRect = swagRect.round();
 		}
 	}
 
