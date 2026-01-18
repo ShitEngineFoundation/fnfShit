@@ -19,6 +19,7 @@ class NoteSkin
 		{
 			FlxG.log.warn("f.game.NoteSkin: " + name + ' not found, default selected instead');
 			name = "NOTE_assets";
+			trace("f.game.NoteSkin: " + name + ' not found, default selected instead');
 			return getSkin();
 		}
 

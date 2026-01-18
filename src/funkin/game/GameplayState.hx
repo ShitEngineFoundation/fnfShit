@@ -109,8 +109,10 @@ class GameplayState extends FlxTransitionableState
 	{
 		// preload stuff
 		makeScriptsFromPath("scripts/gameplay");
+		makeScriptsFromPath("songs/" + SONG.song + "/scripts");
 		FlxG.sound.music.loadEmbedded(Paths.getSound("songs/" + SONG.song + '/sound/Inst', true));
 		voices = FlxG.sound.load(Paths.getSound("songs/" + SONG.song + '/sound/Voices', true));
+
 
 		// set up stuff
 		persistentDraw = persistentUpdate = true;
@@ -317,7 +319,9 @@ class GameplayState extends FlxTransitionableState
 
 				var note:Note = new Note(lane, rawNote[0], mustHitNote, false, holdLength, unspawnNotes[unspawnNotes.length - 1], strum.lastSkinName);
 				note.setPosition(-note.width * 2, -note.height * 2);
-				note.ignoreNote = rawNote[3] != null;
+
+				note.type = Std.string(rawNote[3] ?? note.type);
+				note.ignoreNote = !Note.types.contains(note.type);
 				unspawnNotes.push(note);
 				callFunc("onNoteCreation", [note]);
 				if (holdLength > 0)

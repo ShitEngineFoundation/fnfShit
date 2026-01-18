@@ -1,5 +1,7 @@
 package funkin.backend;
 
+import openfl.system.System;
+import flixel.util.FlxStringUtil;
 import haxe.Timer;
 import openfl.events.Event;
 import openfl.text.TextField;
@@ -32,7 +34,7 @@ class FPSCounter extends TextField
 	@:noCompletion private var times:Array<Float>;
 	@:noCompletion private var lastText:String = null;
 
-	public function new(x:Float = 10, y:Float = 10, color:Int = 0x000000)
+	public function new(x:Float = 10, y:Float = 10, color:Int = 0xFFFFFF)
 	{
 		super();
 
@@ -42,12 +44,13 @@ class FPSCounter extends TextField
 		currentFPS = 0;
 		selectable = false;
 		mouseEnabled = false;
-		defaultTextFormat = new TextFormat("_sans", 12, color);
+		defaultTextFormat = new TextFormat("VCR OSD Mono", 12, color);
 		text = "FPS: ";
 
 		cacheCount = 0;
 		currentTime = 0;
 		times = [];
+		width += 500;
 
 		#if flash
 		addEventListener(Event.ENTER_FRAME, function(e)
@@ -64,6 +67,8 @@ class FPSCounter extends TextField
 	{
 		currentTime += deltaTime;
 		times.push(currentTime);
+
+		memoryBytes = getMemoryOrTaskMemory();
 
 		while (times[0] < currentTime - 1000)
 		{
@@ -82,7 +87,7 @@ class FPSCounter extends TextField
 			newText += "\nstageDC: " + Context3DStats.contextDrawCalls(DrawCallContext.STAGE);
 			newText += "\nstage3DDC: " + Context3DStats.contextDrawCalls(DrawCallContext.STAGE3D);
 			#end
-
+			newText += '\nMemory: ' + FlxStringUtil.formatBytes(memoryBytes);
 			if (newText != lastText)
 			{
 				text = newText;
@@ -90,6 +95,20 @@ class FPSCounter extends TextField
 			}
 		}
 
+		visible = SaveData.currentSettings.fpsCounter;
+
 		cacheCount = currentCount;
 	}
+
+	function getMemoryOrTaskMemory():Float
+	{
+		return System.totalMemoryNumber;
+	}
+
+	public static inline function getMemoryBytesCPP():Int
+	{
+		return 0;
+	}
+
+	var memoryBytes:Float = 0;
 }

@@ -1,5 +1,6 @@
 package funkin.backend.system;
 
+import funkin.game.Note;
 import funkin.backend.mods.PolymodHandler;
 import funkin.game.judgement.JudgementHandler;
 import funkin.game.NoteSkin;
@@ -28,8 +29,11 @@ class InitState extends FlxTransitionableState
 		FlxG.inputs.addInput(controls);
 
 		// precache
-		//NoteSkin.getSkin();
+		// NoteSkin.getSkin();
 		Paths.getSparrowAtlas("notes/NOTE_assets");
+
+		for (line => lineNumber in TxtParser.parseSongList(Paths.getPath("data/noteTypes.txt")))
+			Note.types.push(line);
 
 		var dia = FlxGraphic.fromClass(GraphicTransTileCircle);
 		FlxTransitionableState.defaultTransIn = new TransitionData(FADE, FlxColor.BLACK, 0.5, FlxPoint.get(0, -1), {

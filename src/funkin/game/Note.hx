@@ -4,10 +4,13 @@ import flixel.math.FlxRect;
 
 class Note extends FunkinSprite
 {
+	public static var types(default, null):Array<String> = [];
+
 	public var lastSkinName:String;
 	public var lane:Int = 0;
 	public var resetAnim:Float = 0;
 	public var downScroll:Bool = false;
+	public var type:String = "normal";
 
 	public static var directions:Array<String> = ['left', 'down', 'up', 'right'];
 
@@ -45,8 +48,8 @@ class Note extends FunkinSprite
 
 		loadAtlas("notes/" + lastSkinName, SPARROW);
 		addAnimPrefix("arrow", laneName + '0', 24, true);
-		addAnimPrefix("segment", laneName + ' hold0');
-		addAnimPrefix("cap", laneName + ' hold end0');
+		addAnimPrefix("segment", laneName + ' hold0', 24, true);
+		addAnimPrefix("cap", laneName + ' hold end0', 24, true);
 
 		playAnim("arrow");
 		scale.set(tempSkin.scale, tempSkin.scale);
@@ -160,9 +163,13 @@ class Note extends FunkinSprite
 			&& !(time <= Conductor.songPosition - Conductor.safeZoneOffset * lHM));
 	}
 
-	public function set_ignoreNote(v:Bool):Bool {
-		color = v ? FlxColor.GRAY : FlxColor.WHITE;
-		multAlpha = v ? 0.7 : 1;
-		return  ignoreNote = v;
+	public function set_ignoreNote(v:Bool):Bool
+	{
+		color = v ? FlxColor.GRAY : 0xFFFFFFFF;
+		multAlpha = v ? 0.6 : getInitialAlpha();
+		return ignoreNote = v;
 	}
+
+	public function getInitialAlpha():Float
+		return isSustainNote && !SaveData.currentSettings.opaqueHolds ? 0.6 : 1;
 }

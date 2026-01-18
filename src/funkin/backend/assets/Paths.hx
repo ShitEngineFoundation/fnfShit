@@ -1,5 +1,6 @@
 package funkin.backend.assets;
 
+import flixel.math.FlxMatrix;
 import animate.FlxAnimateFrames;
 import flixel.graphics.frames.FlxFramesCollection;
 import openfl.media.Sound;
@@ -29,6 +30,8 @@ class Paths
 	public static inline function getPath(path:String)
 		return 'assets/$path';
 
+	static public var defaultMatrix:FlxMatrix = new FlxMatrix();
+
 	public static function getGraphic(path:String):FlxGraphic
 	{
 		path = getPath('images/$path.png');
@@ -39,7 +42,23 @@ class Paths
 			return null;
 
 		var bitmap = OpenFLAssets.getBitmapData(path);
-		bitmap.disposeImage();
+
+		@:privateAccess
+		if (bitmap.image != null)
+		{
+			bitmap.lock();
+			if (bitmap.__texture == null)
+			{
+				bitmap.image.premultiplied = true;
+				bitmap.getTexture(FlxG.stage.context3D);
+			}
+			bitmap.getSurface();
+			bitmap.disposeImage();
+			bitmap.image.data = null;
+			bitmap.image = null;
+			bitmap.readable = true;
+		}
+
 		var graphic = FlxGraphic.fromBitmapData(bitmap, false, path, false);
 		graphic.persist = true;
 		cachedImages.set(path, graphic);

@@ -1,5 +1,6 @@
 package;
 
+import funkin.backend.FPSCounter;
 import funkin.backend.system.InitState;
 import flixel.FlxG;
 import flixel.FlxGame;
@@ -24,7 +25,8 @@ class Main extends Sprite
 
 		// FlxModding.reload(false);
 
-		addChild(new FlxGame(1280, 720, InitState, 240, 240, true));
+		addChild(new FlxGame(1280, 720, InitState, 64, 64, true));
+		addChild(new FPSCounter(10, 20));
 		Lib.current.stage.scaleMode = StageScaleMode.NO_SCALE;
 		registerAsDPICompatible();
 		setFlxDefines();
