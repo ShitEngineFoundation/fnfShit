@@ -317,6 +317,7 @@ class GameplayState extends FlxTransitionableState
 
 				var note:Note = new Note(lane, rawNote[0], mustHitNote, false, holdLength, unspawnNotes[unspawnNotes.length - 1], strum.lastSkinName);
 				note.setPosition(-note.width * 2, -note.height * 2);
+				note.ignoreNote = rawNote[3] != null;
 				unspawnNotes.push(note);
 				callFunc("onNoteCreation", [note]);
 				if (holdLength > 0)
@@ -330,6 +331,7 @@ class GameplayState extends FlxTransitionableState
 						@:privateAccess
 						sustain.parent = note;
 						unspawnNotes.push(sustain);
+						sustain.ignoreNote = note.ignoreNote;
 						callFunc("onSustainCreation", [sustain]);
 					}
 				}
@@ -433,7 +435,7 @@ class GameplayState extends FlxTransitionableState
 			var strum = note.mustPress ? playerStrums.members[note.lane] : opponentStrums.members[note.lane];
 			note.move(strum, songSpeed);
 
-			if (!note.mustPress && note.time <= Conductor.songPosition && !note.hit)
+			if (!note.mustPress && note.time <= Conductor.songPosition && !note.hit && !note.ignoreNote)
 			{
 				strum.playAnim("confirm", true);
 				strum.resetAnim = 0.15;
@@ -454,7 +456,7 @@ class GameplayState extends FlxTransitionableState
 			// deletes notes out of range and causes misses if it is too late to hit
 			if (note.time <= Conductor.songPosition - (400 / songSpeed))
 			{
-				if (!note.hit && note.mustPress)
+				if (!note.hit && note.mustPress && !note.ignoreNote)
 				{
 					missNote(note);
 					combo = 0;
@@ -567,7 +569,7 @@ class GameplayState extends FlxTransitionableState
 				strum.playAnim('static', false);
 		});
 
-		for (note in notes.members.filter((n:Note) -> return (n.canBeHit && n.alive && n.mustPress && !n.hit)))
+		for (note in notes.members.filter((n:Note) -> return (n.canBeHit && n.alive && n.mustPress && !n.hit && !n.ignoreNote)))
 		{
 			hitNotes.push(note);
 			directions.push(note.lane);
@@ -591,6 +593,8 @@ class GameplayState extends FlxTransitionableState
 
 	function playerHit(daN:Note)
 	{
+		if (daN.ignoreNote)
+			return;
 		var Judgement = JudgementHandler.getJudgementFromNote(daN);
 		daN.hit = true;
 

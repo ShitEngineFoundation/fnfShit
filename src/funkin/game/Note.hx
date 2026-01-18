@@ -19,7 +19,7 @@ class Note extends FunkinSprite
 	public var hit:Bool = false;
 
 	public var canBeHit(get, null):Bool;
-	public var ignoreNote(default, null):Bool = false;
+	public var ignoreNote(default, set):Bool = false;
 	public var parent(default, null):Note;
 	public var distance:Float = 0;
 
@@ -131,7 +131,7 @@ class Note extends FunkinSprite
 	function updateClip()
 	{
 		var canClip = mustPress && hit || !mustPress && (overlaps(strum));
-		if (canClip)
+		if (canClip && !ignoreNote)
 		{
 			var swagRect = this.clipRect ?? new FlxRect(0, 0, frameWidth, frameHeight);
 			var center = strum.y + (160 * 0.7) * 0.5;
@@ -158,5 +158,11 @@ class Note extends FunkinSprite
 	{
 		return (time <= Conductor.songPosition + Conductor.safeZoneOffset * eHM
 			&& !(time <= Conductor.songPosition - Conductor.safeZoneOffset * lHM));
+	}
+
+	public function set_ignoreNote(v:Bool):Bool {
+		color = v ? FlxColor.GRAY : FlxColor.WHITE;
+		multAlpha = v ? 0.7 : 1;
+		return  ignoreNote = v;
 	}
 }
