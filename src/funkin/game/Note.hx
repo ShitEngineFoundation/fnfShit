@@ -12,11 +12,11 @@ class Note extends FunkinSprite
 	public var downScroll:Bool = false;
 	public var type:String = "normal";
 
-	public static var directions:Array<String> = ['left', 'down', 'up', 'right'];
+	public static var directions:Array<String> = ['purple', 'blue', 'green', 'red'];
 
 	public var time:Float = 0;
 	public var mustPress:Bool = false;
-	public var isSustainNote:Bool = false;
+
 	public var sustainLength:Float = 0;
 	public var prevNote:Note;
 	public var hit:Bool = false;
@@ -26,8 +26,7 @@ class Note extends FunkinSprite
 	public var parent(default, null):Note;
 	public var distance:Float = 0;
 
-	public function new(lane:Int = 0, time:Float = 0, mustPress:Bool = false, ?isSustainNote:Bool = false, ?sustainLength:Float = 0, ?prevNote:Note,
-			?skinName:String = "NOTE_assets")
+	public function new(lane:Int = 0, time:Float = 0, mustPress:Bool = false, ?sustainLength:Float = 0, ?prevNote:Note, ?skinName:String = "NOTE_assets")
 	{
 		super(0, 0);
 		this.lastSkinName = skinName;
@@ -35,7 +34,6 @@ class Note extends FunkinSprite
 		this.prevNote = prevNote ?? this;
 		this.time = time;
 		this.mustPress = mustPress;
-		this.isSustainNote = isSustainNote;
 		this.sustainLength = sustainLength;
 
 		reload();
@@ -48,26 +46,12 @@ class Note extends FunkinSprite
 
 		loadAtlas("notes/" + lastSkinName, SPARROW);
 		addAnimPrefix("arrow", laneName + '0', 24, true);
-		addAnimPrefix("segment", laneName + ' hold0', 24, true);
+		addAnimPrefix("segment", laneName + ' hold piece0', 24, true);
 		addAnimPrefix("cap", laneName + ' hold end0', 24, true);
 
 		playAnim("arrow");
 		scale.set(tempSkin.scale, tempSkin.scale);
 		updateHitbox();
-
-		if (prevNote != null && isSustainNote)
-		{
-			multAlpha = alpha = !SaveData.currentSettings.opaqueHolds ? 0.6 : 1;
-			playAnim("cap");
-			updateHitbox();
-
-			if (prevNote.isSustainNote)
-			{
-				prevNote.playAnim("segment");
-				prevNote.updateHitbox();
-			}
-			eHM = 0;
-		}
 
 		antialiasing = tempSkin.antialiasing;
 	}
@@ -97,65 +81,18 @@ class Note extends FunkinSprite
 		tX += (strum.width * 0.5 - width * 0.5);
 
 		var tY = strum.y + Math.sin(shit) * distanceMS;
-		if (isSustainNote)
-			tY += strum.height / 2;
+
 		if (x != tX)
 			x = tX;
 		if (y != tY)
 			y = tY;
 		if (alpha != strum.alpha * multAlpha)
 			alpha = strum.alpha * multAlpha;
-
-		if (isSustainNote)
-		{
-			if (!animation.name.contains('cap'))
-			{
-				scale.y = (0.45 * sustainLength * speed) / frameHeight;
-				scale.y += 0.45 / frameHeight;
-			}
-			updateHitbox();
-
-			centerOffsets();
-			centerOrigin();
-			origin.y = offset.y = 0;
-			angle = scrollDir;
-			flipY = strum.downScroll;
-			flipX = flipY;
-		}
-	}
-
-	override function draw()
-	{
-		if (strum != null && isSustainNote)
-			updateClip();
-		super.draw();
-	}
-
-	function updateClip()
-	{
-		var canClip = mustPress && hit || !mustPress && (overlaps(strum));
-		if (canClip && !ignoreNote)
-		{
-			var swagRect = this.clipRect ?? new FlxRect(0, 0, frameWidth, frameHeight);
-			var center = strum.y + (160 * 0.7) * 0.5;
-			var swag = (160 * 0.7);
-			var y = (strum.y + swag / 2) + distance;
-			if (!strum.downScroll)
-			{
-				swagRect.y = (center - y) / scale.y;
-				swagRect.height = (height / scale.y) - (swagRect.y);
-			}
-			else
-			{
-				swagRect.height = (center - y) / scale.y;
-				swagRect.y = frameHeight - swagRect.height;
-			}
-			this.clipRect = swagRect.round();
-		}
 	}
 
 	public var eHM:Float = 0.5;
 	public var lHM:Float = 1;
+	public var sustain:Sustain;
 
 	function get_canBeHit():Bool
 	{
@@ -171,5 +108,15 @@ class Note extends FunkinSprite
 	}
 
 	public function getInitialAlpha():Float
-		return isSustainNote && !SaveData.currentSettings.opaqueHolds ? 0.6 : 1;
+		return 1;
+
+	override function draw()
+	{
+		if (hit)
+			return;
+		super.draw();
+	}
+
+	public function getSusHeight():Int
+		return Math.floor(0.45 * lastScrollSpeed * sustainLength);
 }

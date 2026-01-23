@@ -6,8 +6,11 @@ class Strum extends FunkinSprite
 	public var lane:Int = 0;
 	public var resetAnim:Float = 0;
 	public var downScroll:Bool = false;
+	public var pressed:Bool = false;
+	public var cover:HoldCover;
 
 	public static var directions:Array<String> = ['left', 'down', 'up', 'right'];
+
 	public var noteDir:Float = 0;
 
 	public function new(lane:Int = 0, ?skinName:String = "NOTE_assets")
@@ -15,6 +18,7 @@ class Strum extends FunkinSprite
 		super(0, 0);
 		this.lastSkinName = skinName;
 		this.lane = lane;
+		cover = new HoldCover(this);
 		reload();
 	}
 
@@ -24,7 +28,7 @@ class Strum extends FunkinSprite
 		final laneName = directions[lane];
 
 		loadAtlas("notes/" + lastSkinName, SPARROW);
-		addAnimPrefix("static", laneName + ' static', 24, true);
+		addAnimPrefix("static", 'arrow${laneName.toUpperCase()}', 24, true);
 		addAnimPrefix("confirm", laneName + ' confirm');
 		addAnimPrefix("press", laneName + ' press');
 
@@ -38,8 +42,11 @@ class Strum extends FunkinSprite
 	public override function playAnim(animName:String, force = false, reversed = false, frame = 0)
 	{
 		super.playAnim(animName, force, reversed, frame);
-		centerOffsets();
-		centerOrigin();
+		if (animation.curAnim?.curFrame == 0)
+		{
+			centerOffsets();
+			centerOrigin();
+		}
 	}
 
 	override function update(dt:Float)

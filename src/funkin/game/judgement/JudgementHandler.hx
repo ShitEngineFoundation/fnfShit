@@ -14,8 +14,6 @@ class JudgementHandler
 
 	public static function getJudgementFromNote(note:Note):Judgement
 	{
-		if (note.isSustainNote)
-			return SusRating;
 		var noteDiff:Float = Math.abs(note.time - Conductor.songPosition);
 		for (j in 0...judgements.length)
 		{
@@ -23,6 +21,6 @@ class JudgementHandler
 			if (noteDiff > J.ms)
 				return J;
 		}
-		return judgements[judgements.length - 1]; 
+		return judgements[judgements.length - 1];
 	}
 }

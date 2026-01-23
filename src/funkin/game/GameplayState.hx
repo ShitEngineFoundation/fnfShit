@@ -14,6 +14,7 @@ import flixel.util.FlxSort;
 
 typedef StrumLineGroup = FlxTypedSpriteGroup<Strum>;
 typedef NoteGroup = FlxTypedGroup<Note>;
+typedef SusGroup = FlxTypedGroup<Sustain>;
 
 typedef StageJSON =
 {
@@ -42,7 +43,10 @@ class GameplayState extends FlxTransitionableState
 	public var opponentStrums:StrumLineGroup;
 	public var playerStrums:StrumLineGroup;
 	public var notes:NoteGroup;
+	public var sustains:SusGroup;
+
 	public var unspawnNotes:Array<Note> = [];
+	public var unspawnHolds:Array<Sustain> = [];
 
 	static public var SONG:SwagSong;
 
@@ -113,7 +117,6 @@ class GameplayState extends FlxTransitionableState
 		FlxG.sound.music.loadEmbedded(Paths.getSound("songs/" + SONG.song + '/sound/Inst', true));
 		voices = FlxG.sound.load(Paths.getSound("songs/" + SONG.song + '/sound/Voices', true));
 
-
 		// set up stuff
 		persistentDraw = persistentUpdate = true;
 		FlxG.cameras.reset(camGame = new FlxZoomCamera(0, 0, FlxG.width, FlxG.height, 1));
@@ -136,7 +139,7 @@ class GameplayState extends FlxTransitionableState
 			case 'philly':
 				currentStage = new Week3();
 
-			default:
+			case "stage":
 				camGame.targetZoom = 0.9;
 
 				currentStage = new Week1();
@@ -186,13 +189,11 @@ class GameplayState extends FlxTransitionableState
 		if (SaveData.currentSettings.middleScroll)
 			playerStrums.screenCenter(X);
 		hudElements.add(playerStrums);
-		nSplashes = new FlxTypedGroup<NoteSplash>();
-		hudElements.add(nSplashes);
 
 		#if modchart hudElements.add(funkin_modchart_instance); #end
 
-		notes = new NoteGroup();
-		hudElements.add(notes);
+		nSplashes = new FlxTypedGroup<NoteSplash>();
+		hudElements.add(nSplashes);
 
 		healthBarBG = new FlxSprite(0, FlxG.height * 0.89).loadGraphic(Paths.getGraphic('healthBar'));
 		healthBarBG.screenCenter(X);
@@ -213,6 +214,12 @@ class GameplayState extends FlxTransitionableState
 
 		comboGroup = new FlxTypedSpriteGroup<Alphabet>();
 		add(comboGroup);
+
+		sustains = new SusGroup();
+		hudElements.add(sustains);
+
+		notes = new NoteGroup();
+		hudElements.add(notes);
 
 		scoreTxt = new FlxText(0, 0, 0, '');
 		scoreTxt.setFormat(Paths.getFont("vcr"), 22, FlxColor.WHITE, null, OUTLINE, FlxColor.BLACK);
@@ -307,7 +314,7 @@ class GameplayState extends FlxTransitionableState
 		{
 			if (section.changeBPM)
 				Conductor.BPM = section.bpm;
-			final stepLength:Float = Conductor.stepLength;
+
 			for (rawNote in section.sectionNotes)
 			{
 				var lane:Int = Math.floor(Math.abs(rawNote[1])) % 4;
@@ -317,27 +324,18 @@ class GameplayState extends FlxTransitionableState
 					mustHitNote = !section.mustHitSection;
 				var strum = mustHitNote ? playerStrums.members[lane] : opponentStrums.members[lane];
 
-				var note:Note = new Note(lane, rawNote[0], mustHitNote, false, holdLength, unspawnNotes[unspawnNotes.length - 1], strum.lastSkinName);
+				var note:Note = new Note(lane, rawNote[0], mustHitNote, holdLength, unspawnNotes[unspawnNotes.length - 1], strum.lastSkinName);
 				note.setPosition(-note.width * 2, -note.height * 2);
 
 				note.type = Std.string(rawNote[3] ?? note.type);
 				note.ignoreNote = !Note.types.contains(note.type);
 				unspawnNotes.push(note);
 				callFunc("onNoteCreation", [note]);
+
 				if (holdLength > 0)
 				{
-					for (segmentID in 0...Math.floor(holdLength / stepLength))
-					{
-						final extra:Float = (stepLength * segmentID) + 20;
-						var sustain:Note = new Note(lane, note.time + extra, mustHitNote, true, stepLength, unspawnNotes[unspawnNotes.length - 1],
-							strum.lastSkinName);
-						sustain.setPosition(-sustain.width * 2, -sustain.height * 2);
-						@:privateAccess
-						sustain.parent = note;
-						unspawnNotes.push(sustain);
-						sustain.ignoreNote = note.ignoreNote;
-						callFunc("onSustainCreation", [sustain]);
-					}
+					var sustain = note.sustain = new Sustain(note);
+					unspawnHolds.push(sustain);
 				}
 			}
 		}
@@ -360,6 +358,8 @@ class GameplayState extends FlxTransitionableState
 			strum.downScroll = SaveData.currentSettings.downScroll;
 			strum.x = (160 * 0.7 * i);
 			group.add(strum);
+			add(strum.cover);
+			strum.cover.cameras = [camHUD];
 		}
 	}
 
@@ -404,8 +404,8 @@ class GameplayState extends FlxTransitionableState
 
 		iconP1.x = healthBar.x + (healthBar.width * (FlxMath.remapToRange(healthBar.percent, 0, 100, 100, 0) * 0.01) - iconOffset);
 		iconP2.x = healthBar.x + (healthBar.width * (FlxMath.remapToRange(healthBar.percent, 0, 100, 100, 0) * 0.01)) - (iconP2.width - iconOffset);
-		iconP1.y = healthBar.y - (iconP1.frameHeight * 0.5);
-		iconP2.y = healthBar.y - (iconP2.frameHeight * 0.5);
+		iconP1.y = healthBar.y - (iconP1.height * 0.5);
+		iconP2.y = healthBar.y - (iconP2.height * 0.5);
 
 		if (health > 2)
 			health = 2;
@@ -429,6 +429,12 @@ class GameplayState extends FlxTransitionableState
 				note.revive();
 				unspawnNotes.remove(note);
 				callFunc("onNoteSpawn", [note]);
+
+				if (note.sustain != null)
+				{
+					unspawnHolds.remove(note.sustain);
+					sustains.add(note.sustain);
+				}
 			}
 		}
 
@@ -439,26 +445,47 @@ class GameplayState extends FlxTransitionableState
 			var strum = note.mustPress ? playerStrums.members[note.lane] : opponentStrums.members[note.lane];
 			note.move(strum, songSpeed);
 
-			if (!note.mustPress && note.time <= Conductor.songPosition && !note.hit && !note.ignoreNote)
+			if (!note.mustPress && note.time <= Conductor.songPosition && !note.ignoreNote)
 			{
-				strum.playAnim("confirm", true);
+				strum.playAnim("confirm", !note.hit);
 				strum.resetAnim = 0.15;
-				note.hit = true;
+
 				dad.hitNote(note);
 				noteCamMovement(note);
 
-				if (SaveData.currentSettings.opponentNoteSplashes)
-					spawnSplash(note);
-				callFunc("onNoteHit", [note]);
-				callFunc("onDadHit", [note]);
+				if (!note.hit && note.sustainLength > 0)
+					strum.cover.playAnim("start");
+				strum.cover.visible = note.sustainLength > 0;
 
-				if (!note.isSustainNote)
-					killNote(note);
+				if (SaveData.currentSettings.opponentNoteSplashes && !note.hit)
+					spawnSplash(note);
+				if (!note.hit)
+				{
+					callFunc("onNoteHit", [note]);
+					callFunc("onDadHit", [note]);
+				}
+				note.hit = true;
 			}
 			callFunc("onNoteUpdate", [note]);
 
+			if (note.mustPress && note.hit && !keyHold[note.lane % keyHold.length])
+			{
+				missNote(note);
+				killNote(note);
+			}
+
+			if (note.time + note.sustainLength <= Conductor.songPosition && note.hit)
+			{
+				if (!note.mustPress)
+					strum.playAnim("confirm", true);
+				if (note.sustainLength > 0 && note.mustPress)
+					strum.cover.playAnim("end");
+				else 
+					strum.cover.visible = false;
+				killNote(note);
+			}
 			// deletes notes out of range and causes misses if it is too late to hit
-			if (note.time <= Conductor.songPosition - (400 / songSpeed))
+			if (note.time <= Conductor.songPosition - (400 / songSpeed) && !note.hit)
 			{
 				if (!note.hit && note.mustPress && !note.ignoreNote)
 				{
@@ -528,6 +555,10 @@ class GameplayState extends FlxTransitionableState
 	{
 		note.destroy();
 		notes.remove(note, true);
+
+		sustains.remove(note.sustain, true);
+		note.sustain?.destroy();
+		note.sustain = null;
 	}
 
 	public var hitNotes:Array<Note> = [];
@@ -567,6 +598,7 @@ class GameplayState extends FlxTransitionableState
 
 		playerStrums.forEachAlive(function(strum:Strum)
 		{
+			strum.pressed = keyPress[strum.lane];
 			if (keyPress[strum.lane])
 				strum.playAnim('press', true);
 			else if (!keyHold[strum.lane])
@@ -587,9 +619,7 @@ class GameplayState extends FlxTransitionableState
 
 			for (daN in hitNotes)
 			{
-				if (keyPress[daN.lane] && daN.canBeHit && !daN.isSustainNote)
-					playerHit(daN);
-				if (keyHold[daN.lane] && (daN.canBeHit) && daN.isSustainNote)
+				if (keyPress[daN.lane] && daN.canBeHit)
 					playerHit(daN);
 			}
 		}
@@ -606,7 +636,7 @@ class GameplayState extends FlxTransitionableState
 		strum.playAnim("confirm", true);
 		bf.hitNote(daN);
 
-		var healthGain:Float = 0.023 * (daN.isSustainNote ? 0.5 : 1);
+		var healthGain:Float = 0.023;
 
 		health += healthGain;
 		if (!Judgement.misses)
@@ -629,8 +659,7 @@ class GameplayState extends FlxTransitionableState
 		if (Judgement.splashes)
 			spawnSplash(daN);
 
-		if (!daN.isSustainNote)
-			killNote(daN);
+		killNote(daN);
 	}
 
 	public var comboGroup:FlxTypedSpriteGroup<Alphabet>;
@@ -683,6 +712,14 @@ class GameplayState extends FlxTransitionableState
 		{
 			note.destroy();
 			unspawnNotes[unspawnNotes.indexOf(note)] = null;
+			note = null;
+		}
+		unspawnNotes.resize(0);
+
+		for (note in unspawnHolds)
+		{
+			note.destroy();
+			unspawnHolds[unspawnHolds.indexOf(note)] = null;
 			note = null;
 		}
 		unspawnNotes.resize(0);
@@ -750,7 +787,7 @@ class GameplayState extends FlxTransitionableState
 
 	public function spawnSplash(n:Note)
 	{
-		if (!SaveData.currentSettings.noteSplashes || n.isSustainNote)
+		if (!SaveData.currentSettings.noteSplashes)
 			return;
 		var strumline = getStrumline(n.mustPress ? 1 : 0);
 		var strum = strumline.members[n.lane % strumline.length];

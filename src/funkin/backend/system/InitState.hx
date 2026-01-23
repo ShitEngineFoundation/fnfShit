@@ -31,6 +31,7 @@ class InitState extends FlxTransitionableState
 		// precache
 		// NoteSkin.getSkin();
 		Paths.getSparrowAtlas("notes/NOTE_assets");
+		Paths.getSparrowAtlas("holdCover");
 
 		for (line => lineNumber in TxtParser.parseSongList(Paths.getPath("data/noteTypes.txt")))
 			Note.types.push(line);

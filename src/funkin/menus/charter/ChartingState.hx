@@ -236,7 +236,7 @@ class ChartingState extends FlxUIState
 
 		var characters:Array<String> = ['dad', 'gf', 'bf'];
 		var stages:Array<String> = ['stage', 'spooky', 'philly'];
-		
+
 		var player1DropDown = new FlxUIDropDownMenu(10, 100, FlxUIDropDownMenu.makeStrIdLabelArray(characters, true), function(character:String)
 		{
 			_song.player1 = characters[Std.parseInt(character)];
@@ -309,9 +309,10 @@ class ChartingState extends FlxUIState
 		{
 			for (i in 0..._song.notes[curSection].sectionNotes.length)
 			{
-				var note = _song.notes[curSection].sectionNotes[i];
+				var note:Array<Dynamic> = _song.notes[curSection].sectionNotes[i];
 				note[1] = (note[1] + 4) % 8;
 				_song.notes[curSection].sectionNotes[i] = note;
+			
 				updateGrid();
 			}
 		});
@@ -888,20 +889,12 @@ class ChartingState extends FlxUIState
 			if (daSus > 0)
 			{
 				var susHeight:Float = Math.floor(FlxMath.remapToRange(daSus, 0, Conductor.stepLength * 16, 0, gridBG.height));
-				var sustainMiddle:Note = new Note(note.lane, daStrumTime, false, true, 0, note);
-				sustainMiddle.setPosition(note.x + (note.width * 0.5 - 4), note.y + note.height / 2);
-				sustainMiddle.setGraphicSize(8, susHeight);
-				sustainMiddle.updateHitbox();
-				curRenderedSustains.add(sustainMiddle);
-
-				var cap:Note = new Note(note.lane, daStrumTime, false, true, 0, sustainMiddle);
-				cap.setPosition(note.x + (note.width * 0.5 - 4), note.y + susHeight + (GRID_SIZE / 2));
-				cap.setGraphicSize(8, GRID_SIZE / 2);
-				cap.updateHitbox();
-				curRenderedSustains.add(cap);
-
-				sustainMiddle.setGraphicSize(8, susHeight);
-				sustainMiddle.updateHitbox();
+				var sustain:FlxSprite = new FlxSprite(0, 0);
+				sustain.makeGraphic(3, 1);
+				sustain.setGraphicSize(GRID_SIZE / 8, susHeight);
+				sustain.updateHitbox();
+				sustain.setPosition(note.x + (note.width * 0.5 - sustain.width * 0.5), note.y + note.height / 2);
+				curRenderedSustains.add(sustain);
 			}
 		}
 	}

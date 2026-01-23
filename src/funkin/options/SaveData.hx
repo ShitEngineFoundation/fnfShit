@@ -12,7 +12,7 @@ class OptionSaveData
 	public var noteCamMovement:Bool = true;
 	public var fps:Float = 64;
 
-	//UI and Looks
+	// UI and Looks
 	public var hideIcons:Bool = false;
 	public var hideUI:Bool = false;
 	public var opponentNotes:Bool = true;
@@ -54,9 +54,9 @@ class SaveData
 		for (field in Reflect.fields(defaultSettings))
 		{
 			if (Reflect.hasField(FlxG.save.data, field))
-			{
 				setVal(field, Reflect.getProperty(FlxG.save.data, field));
-			}
+			else
+				Reflect.setField(FlxG.save.data, field, Reflect.getProperty(defaultSettings, field));
 		}
 	}
 }
